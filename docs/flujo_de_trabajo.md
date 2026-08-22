@@ -1,0 +1,153 @@
+# Flujo de trabajo con Git y GitHub
+
+Explica cómo usar Git y GitHub para que el desarrollo quede ordenado y sea fácil de retomar — pensado para un desarrollador solo, sin equipo, sin ceremonia de más. "Crear un repo y subir todo" funciona para guardar una copia, pero no da ninguna de estas tres cosas que sí importan acá: un historial que se pueda leer y volver atrás con sentido, una red de seguridad que avise si algo se rompió antes de que lo notes vos, y una forma de nunca subir una contraseña o clave por accidente. Con un rato de setup al principio, las tres vienen solas.
+
+## 1. Inicializar el repositorio (hoy no existe — ver `CLAUDE.md`)
+
+Orden importante: el `.gitignore` va **antes** del primer `git add`, si no terminás versionando `bin/`, `obj/` o `node_modules/` por error y después cuesta sacarlos del historial.
+
+```bash
+cd "Sistema Taller"
+git init
+# crear el .gitignore (contenido en la sección 3, abajo) antes de seguir
+git add .
+git commit -m "docs: estado inicial del proyecto (specs, prototipo y plan)"
+```
+
+Después, en GitHub: crear un repositorio vacío (sin README, sin .gitignore, sin licencia — ya los tenés localmente, así se evita un conflicto tonto en el primer push) y conectarlo:
+
+```bash
+git branch -M main
+git remote add origin https://github.com/TU_USUARIO/sistema-taller.git
+git push -u origin main
+```
+
+## 2. Ramas: simple, no hace falta más
+
+Nada de Git Flow (ramas `develop`/`release`/`hotfix`) — es ceremonia pensada para equipos grandes con múltiples versiones en producción a la vez, y este proyecto no tiene ninguna de las dos cosas. La regla que sí vale la pena:
+
+- **`main` siempre queda en un estado que funciona.** Nunca se programa directo sobre `main`.
+- **Una rama por feature**, idealmente calzando con las fases de `plan_desarrollo.md` — así el nombre de la rama ya te dice en qué fase estás:
+
+```bash
+git checkout -b feature/fase-1-base-backend-login
+# ... trabajo de esa fase ...
+git checkout -b feature/fase-2-vehiculos
+```
+
+- Cuando la fase está lista (pasó su checkpoint en `plan_desarrollo.md`), esa rama se integra a `main` mediante un **Pull Request** (sección 5) — no un merge directo local.
+
+## 3. `.gitignore`
+
+Este proyecto mezcla un proyecto .NET y uno de Node — el `.gitignore` necesita cubrir los dos:
+
+```gitignore
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Secretos y configuración local — nunca se versionan
+*.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+```
+
+Nota sobre secretos: como `backend.md` ya establece usar `dotnet user-secrets` para desarrollo, esas claves ni siquiera viven dentro de la carpeta del proyecto (quedan en el perfil del usuario, fuera del repo) — así que en la práctica no deberían aparecer nunca en un `git status`. El `.gitignore` de `appsettings.Development.json` es una segunda red de seguridad, no la única.
+
+## 4. Commits
+
+Cada commit, un cambio lógico completo — no "subí todo lo que tenía" al final del día, tampoco un commit por cada archivo tocado. Mensaje en modo imperativo, describiendo el qué y no el cómo. Un prefijo liviano ayuda a que el historial se lea de un vistazo (no es obligatorio, pero cuesta cero acostumbrarse):
+
+```
+feat: alta de vehículo con validación de patente conocida
+fix: el filtro por taller no alcanzaba a OrdenTrabajoServicio
+docs: agregar plan de desarrollo por fases
+chore: configurar CI de GitHub Actions
+```
+
+## 5. Pull Requests, incluso trabajando solo
+
+Suena a ceremonia de equipo, pero da dos cosas útiles estando solo: un punto de pausa para releerte antes de que algo entre a `main`, y el lugar exacto donde el chequeo automático (sección 6) tiene que ponerse verde antes de mergear. Flujo:
+
+```bash
+git push -u origin feature/fase-2-vehiculos
+```
+
+En GitHub, abrís el Pull Request de `feature/fase-2-vehiculos` hacia `main`. Ahí ves el diff completo de la fase, esperás a que el workflow de la sección 6 termine en verde, y recién ahí lo mergeás (botón "Squash and merge" deja un solo commit prolijo en `main` por feature, aunque hayas hecho diez commits chicos en el camino — cómodo para no ensuciar el historial de `main` con work-in-progress).
+
+## 6. GitHub Actions — qué es, explicado desde cero
+
+Es un robot que GitHub hace correr automáticamente cada vez que empujás código o abrís un Pull Request. Se le dice qué hacer con un archivo YAML dentro de `.github/workflows/`, ese archivo vive en el propio repositorio (o sea, es "código" como cualquier otro). Lo típico — y lo que sirve acá — es que compile el proyecto y corra los tests; si algo falla, te enterás en la pestaña "Actions" del repo y en el propio Pull Request, antes de que ese cambio llegue a `main`. Es el reemplazo automático de acordarte de correr `dotnet test` y `npm test` a mano cada vez.
+
+Creá el archivo `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/SistemaTaller.Api
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore
+      - run: dotnet build --no-restore
+      - run: dotnet test --no-build
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test -- --run
+```
+
+Los dos jobs (`backend` y `frontend`) corren en paralelo, cada uno en su propia máquina virtual descartable. `dotnet test` en este punto va a incluir los tests de integración de `testing.md` — como corren contra Testcontainers (que necesita Docker), el runner de GitHub Actions ya lo trae instalado de fábrica, no hace falta configurar nada extra para eso.
+
+Con esto commiteado y pusheado una vez a `main`, todo Pull Request nuevo ya lo dispara solo — no hay que volver a tocarlo salvo que cambie algo de la estructura de carpetas.
+
+## 7. README del proyecto
+
+Todavía no hay un `README.md` en la raíz — vale la pena uno corto: qué es el proyecto, con qué se levanta cada parte (dos o tres comandos, ver `backend.md` y `plan_desarrollo.md` → Fase 0), y un link a `docs/` para el resto. Es lo primero que se ve al entrar al repositorio en GitHub, y el lugar donde un futuro vos (o alguien más) entiende en 30 segundos por dónde arrancar.
+
+## Resumen del hábito diario
+
+1. `git checkout main && git pull` antes de arrancar cualquier cosa.
+2. Rama nueva por feature/fase: `git checkout -b feature/...`.
+3. Commits chicos y descriptivos a medida que avanza esa fase.
+4. Al llegar al checkpoint de la fase (`plan_desarrollo.md`): push de la rama, abrir Pull Request.
+5. Esperar el check verde de GitHub Actions, mergear a `main`.
+6. Borrar la rama ya mergeada, volver al paso 1 para la fase siguiente.
