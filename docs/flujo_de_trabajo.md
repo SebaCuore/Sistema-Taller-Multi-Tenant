@@ -4,17 +4,52 @@ Explica cómo usar Git y GitHub para que el desarrollo quede ordenado y sea fác
 
 ## 1. Inicializar el repositorio (hoy no existe — ver `CLAUDE.md`)
 
-Orden importante: el `.gitignore` va **antes** del primer `git add`, si no terminás versionando `bin/`, `obj/` o `node_modules/` por error y después cuesta sacarlos del historial.
+Antes de tocar Git hay dos archivos que todavía no existen en la carpeta del proyecto y conviene crear primero: el `.gitignore` y un `README.md` mínimo. Si no, terminás versionando `bin/`, `obj/` o `node_modules/` por error (cuesta sacarlos del historial después), y el repo en GitHub queda sin ninguna explicación de qué es.
+
+**Paso 1 — crear el `.gitignore`.** En la raíz de "Sistema Taller", creá un archivo llamado `.gitignore` con este contenido (es el mismo que se explica en detalle en la sección 3, abajo):
+
+```gitignore
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Secretos y configuración local — nunca se versionan
+*.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+```
+
+**Paso 2 — crear un `README.md` mínimo.** No hace falta que sea largo todavía (la sección 7 explica qué agregarle más adelante); alcanza con el nombre del proyecto, una línea de qué es, y un link a `docs/description.md`:
+
+```markdown
+# Sistema Taller
+
+Sistema de gestión web para talleres mecánicos (autos y motos). Ver `docs/description.md` para el detalle completo.
+```
+
+**Paso 3 — recién ahora, `git init` y el primer commit** (con `.gitignore` y `README.md` ya en la carpeta, quedan incluidos en este mismo commit):
 
 ```bash
 cd "Sistema Taller"
 git init
-# crear el .gitignore (contenido en la sección 3, abajo) antes de seguir
 git add .
 git commit -m "docs: estado inicial del proyecto (specs, prototipo y plan)"
 ```
 
-Después, en GitHub: crear un repositorio vacío (sin README, sin .gitignore, sin licencia — ya los tenés localmente, así se evita un conflicto tonto en el primer push) y conectarlo:
+**Paso 4 — GitHub.** Creá un repositorio vacío: al crearlo, GitHub ofrece tres casilleros ("Add a README file", "Add .gitignore", "Choose a license") — dejalos **todos sin marcar**. No es que ya "tengas" esos archivos en un sentido abstracto: es que si los marcás, GitHub genera un primer commit propio en el repo remoto, distinto al que ya hiciste vos en el paso 3, y el primer `git push` te va a pedir un merge innecesario para dos historiales que deberían haber sido uno solo. Con los tres sin marcar, el repo remoto queda realmente vacío y el push conecta limpio:
 
 ```bash
 git branch -M main
@@ -39,7 +74,7 @@ git checkout -b feature/fase-2-vehiculos
 
 ## 3. `.gitignore`
 
-Este proyecto mezcla un proyecto .NET y uno de Node — el `.gitignore` necesita cubrir los dos:
+Ya se creó en el paso 1 de la sección anterior; esta sección es la referencia de por qué tiene ese contenido. Este proyecto mezcla un proyecto .NET y uno de Node — el `.gitignore` necesita cubrir los dos:
 
 ```gitignore
 # .NET
@@ -141,7 +176,7 @@ Con esto commiteado y pusheado una vez a `main`, todo Pull Request nuevo ya lo d
 
 ## 7. README del proyecto
 
-Todavía no hay un `README.md` en la raíz — vale la pena uno corto: qué es el proyecto, con qué se levanta cada parte (dos o tres comandos, ver `backend.md` y `plan_desarrollo.md` → Fase 0), y un link a `docs/` para el resto. Es lo primero que se ve al entrar al repositorio en GitHub, y el lugar donde un futuro vos (o alguien más) entiende en 30 segundos por dónde arrancar.
+El `README.md` creado en el paso 2 de la sección 1 es intencionalmente mínimo, solo para que el primer commit no quede vacío de contexto. Vale la pena volver a él una vez que el esqueleto de Fase 0 (`plan_desarrollo.md`) esté funcionando y agregarle: con qué se levanta cada parte (dos o tres comandos, ver `backend.md` y `plan_desarrollo.md` → Fase 0) y un link a `docs/` para el resto. Es lo primero que se ve al entrar al repositorio en GitHub, y el lugar donde un futuro vos (o alguien más) entiende en 30 segundos por dónde arrancar.
 
 ## Resumen del hábito diario
 

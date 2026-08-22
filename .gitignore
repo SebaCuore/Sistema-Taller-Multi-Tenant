@@ -1,0 +1,21 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Local environment files
+*.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
