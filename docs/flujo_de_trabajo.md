@@ -46,7 +46,7 @@ Sistema de gestión web para talleres mecánicos (autos y motos). Ver `docs/desc
 cd "Sistema Taller"
 git init
 git add .
-git commit -m "docs: estado inicial del proyecto (specs, prototipo y plan)"
+git commit -m "docs: initial project state (specs, prototype and plan)"
 ```
 
 **Paso 4 — GitHub.** Creá un repositorio vacío: al crearlo, GitHub ofrece tres casilleros ("Add a README file", "Add .gitignore", "Choose a license") — dejalos **todos sin marcar**. No es que ya "tengas" esos archivos en un sentido abstracto: es que si los marcás, GitHub genera un primer commit propio en el repo remoto, distinto al que ya hiciste vos en el paso 3, y el primer `git push` te va a pedir un merge innecesario para dos historiales que deberían haber sido uno solo. Con los tres sin marcar, el repo remoto queda realmente vacío y el push conecta limpio:
@@ -104,14 +104,23 @@ Nota sobre secretos: como `backend.md` ya establece usar `dotnet user-secrets` p
 
 ## 4. Commits
 
-Cada commit, un cambio lógico completo — no "subí todo lo que tenía" al final del día, tampoco un commit por cada archivo tocado. Mensaje en modo imperativo, describiendo el qué y no el cómo. Un prefijo liviano ayuda a que el historial se lea de un vistazo (no es obligatorio, pero cuesta cero acostumbrarse):
+Cada commit, un cambio lógico completo — no "subí todo lo que tenía" al final del día, tampoco un commit por cada archivo tocado. Mensaje en modo imperativo, describiendo el qué y no el cómo.
 
-```
-feat: alta de vehículo con validación de patente conocida
-fix: el filtro por taller no alcanzaba a OrdenTrabajoServicio
-docs: agregar plan de desarrollo por fases
-chore: configurar CI de GitHub Actions
-```
+**Los mensajes de commit van en inglés**, a diferencia del resto del proyecto (código, documentación, nombres de entidades y campos van en español — ver `CLAUDE.md`). Es una excepción deliberada, no un descuido: el prefijo + mensaje corto en inglés es la convención de facto en prácticamente cualquier repositorio, propio o ajeno, así que el historial de Git queda legible con el mismo estándar que el resto del ecosistema — útil si en algún momento este repo lo mira alguien más, o si lo mostrás como parte de un portfolio.
+
+### Prefijos: qué significa cada uno y cuándo usarlo
+
+Un prefijo liviano al principio del mensaje ayuda a que el historial se lea de un vistazo, sin abrir cada commit para saber de qué se trata. Alcanza con estos cinco — no hace falta memorizar más categorías que estas:
+
+| Prefijo | Cuándo usarlo | Ejemplo |
+|---|---|---|
+| `feat` | Una funcionalidad nueva, visible para quien usa el sistema — un requerimiento funcional nuevo, un endpoint, una pantalla. | `feat: add vehicle registration with known-plate confirmation` |
+| `fix` | Corrige algo que ya existía y funcionaba mal — un bug real, no una mejora. | `fix: taller filter did not reach OrdenTrabajoServicio` |
+| `docs` | Cambios solo en documentación (`docs/`, `CLAUDE.md`, `README.md`) — sin tocar ningún archivo de código. | `docs: add development plan by phases` |
+| `test` | Agregar o modificar tests, sin cambiar el comportamiento del código de producción. | `test: add taller_id isolation battery for vehicles` |
+| `chore` | Todo lo que hace falta para que el proyecto funcione y no entra en ninguna de las categorías anteriores: dependencias, configuración, infraestructura, CI. Si un cambio no encaja claramente en `feat`/`fix`/`docs`/`test`, casi siempre es esto. | `chore: add local Postgres via Docker Compose` |
+
+Un caso ambiguo típico: al implementar una función nueva junto con sus propios tests en el mismo commit (lo normal, no hace falta separarlos), el prefijo es `feat` — los tests van como parte de entregar la funcionalidad completa, no como un commit aparte. `test` queda para cuando se agregan o ajustan tests por sí solos, sin que cambie el código de producción al mismo tiempo — por ejemplo, la batería de aislamiento por `taller_id` que `testing.md` pide escribir como paso propio al principio de la Fase 1.
 
 ## 5. Pull Requests, incluso trabajando solo
 

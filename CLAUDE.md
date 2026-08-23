@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Estado del repositorio
 
-Este repositorio **todavía no tiene aplicación**: contiene `docs/` (la especificación completa) y `design/prototipo.html`, un prototipo estático navegable de un solo archivo. No hay `package.json`, ni build, ni tests, ni control de versiones (no es un repo git — inicializarlo es el primer paso de la Fase 0 de `docs/plan_desarrollo.md`, siguiendo `docs/flujo_de_trabajo.md`). El idioma del proyecto es **español** — documentación, nombres de entidades y campos (`taller_id`, `patente`, `OrdenTrabajo`) están en español, y el código nuevo debe seguir esa convención.
+Este repositorio **todavía no tiene aplicación**: contiene `docs/` (la especificación completa) y `design/prototipo.html`, un prototipo estático navegable de un solo archivo. No hay `package.json`, ni build, ni tests, ni control de versiones (no es un repo git — inicializarlo es el primer paso de la Fase 0 de `docs/plan_desarrollo.md`, siguiendo `docs/flujo_de_trabajo.md`). El idioma del proyecto es **español** — documentación, nombres de entidades y campos (`taller_id`, `patente`, `OrdenTrabajo`) están en español, y el código nuevo debe seguir esa convención. Excepción deliberada: los **mensajes de commit van en inglés**, con prefijo (`feat`/`fix`/`docs`/`test`/`chore`) — ver `docs/flujo_de_trabajo.md`.
 
 Stack de frontend y de backend ya están decididos (ver más abajo). El plan de implementación, fase por fase (backend y frontend juntos, no todo el frontend primero), está en `docs/plan_desarrollo.md` — es el documento por donde arrancar para escribir código.
 

@@ -36,6 +36,10 @@ dotnet tool install --global dotnet-ef
 ## Cómo arrancar, paso a paso
 
 ```bash
+# 0. Levantar Postgres (desde la raíz de "Sistema Taller", NO desde backend/) usando el
+# docker-compose.yml del proyecto — ver la guía de Docker adjunta si es la primera vez.
+docker compose up -d
+
 # 1. Crear el proyecto (plantilla "web" = vacía, minimal API desde cero, sin controllers)
 dotnet new web -n SistemaTaller.Api -o backend/SistemaTaller.Api
 cd backend/SistemaTaller.Api
@@ -48,9 +52,10 @@ dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
 dotnet add package System.IdentityModel.Tokens.Jwt
 dotnet add package BCrypt.Net-Next
 
-# 3. Secretos de desarrollo (nunca en appsettings.json)
+# 3. Secretos de desarrollo (nunca en appsettings.json) — usuario, contraseña y nombre de
+# base deben coincidir exactamente con los del docker-compose.yml
 dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Database=sistema_taller;Username=postgres;Password=TU_PASSWORD"
+dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Database=sistema_taller;Username=postgres;Password=devpassword"
 dotnet user-secrets set "Jwt:Key" "una-clave-aleatoria-de-al-menos-32-caracteres-larga"
 
 # 4. Con las entidades, el DbContext y las configuraciones ya escritas (ver abajo):

@@ -16,7 +16,7 @@ No es una "feature" todavía, es dejar los dos proyectos arrancando antes de esc
 
 - [ ] Inicializar git y crear el repositorio en GitHub siguiendo `flujo_de_trabajo.md` (hoy no existe control de versiones — ver `CLAUDE.md`): `.gitignore` primero, primer commit con `docs/` y `design/`, push a GitHub.
 - [ ] Sumar el workflow de GitHub Actions (`.github/workflows/ci.yml`, ejemplo completo en `flujo_de_trabajo.md`) — todavía no tiene nada para compilar, pero queda listo para cuando en la Fase 1 aparezcan los primeros tests.
-- [ ] PostgreSQL corriendo en local (instalado directo, o un contenedor Docker — lo que sea más cómodo para desarrollar). Docker además hace falta para correr los tests de integración con Testcontainers desde la Fase 1.
+- [ ] PostgreSQL corriendo en Docker: `docker compose up -d` desde la raíz del proyecto, usando el `docker-compose.yml` incluido (ver `backend.md` → "Cómo arrancar, paso a paso", y la guía de Docker adjunta al proyecto para quien no usó Docker antes). Se eligió Docker por sobre una instalación directa porque de todos modos hace falta para correr los tests de integración con Testcontainers desde la Fase 1 — instalarlo ahora evita repetir el paso, y además es más fácil de resetear si algo queda en un estado raro.
 - [ ] **Backend**: seguir `backend.md` → "Cómo arrancar, paso a paso", pasos 1 a 3 (crear el proyecto, agregar paquetes, configurar `user-secrets` con la cadena de conexión). Todavía sin entidades ni endpoints — el objetivo acá es solo `dotnet run` sirviendo la plantilla vacía sin errores.
 - [ ] **Frontend**: crear el proyecto real (todavía no existe — `design/prototipo.html` es solo la referencia visual):
 
