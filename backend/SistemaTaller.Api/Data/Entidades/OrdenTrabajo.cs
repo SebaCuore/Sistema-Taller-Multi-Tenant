@@ -1,3 +1,5 @@
+using SistemaTaller.Api.Common;
+
 namespace SistemaTaller.Api.Data.Entidades;
 
 public class OrdenTrabajo : IPerteneceATaller
