@@ -7,7 +7,7 @@
 | Librería de UI | React + TypeScript | Definido desde el inicio del proyecto. |
 | Build tool | Vite | Estándar actual para React+TS, arranque y recarga en desarrollo muy rápidos. Se descartó Next.js: no hace falta renderizado en servidor ni SEO para una app interna detrás de login. |
 | Estilos | Tailwind CSS | Permite centralizar la paleta de colores y el tamaño de fuentes en un solo archivo de configuración — clave para el pedido de "paleta sencilla y fácil de cambiar". |
-| Componentes | shadcn/ui (sobre Radix + Tailwind) | Componentes accesibles de fábrica (foco de teclado, contraste, tamaños de click correctos). El código se copia al proyecto en vez de instalarse como dependencia cerrada, así que se puede simplificar libremente. |
+| Componentes | shadcn/ui (sobre Base UI + Tailwind) | Componentes accesibles de fábrica (foco de teclado, contraste, tamaños de click correctos). Se eligió Base UI en vez de Radix por ser la librería primitiva que shadcn/ui recomienda activamente hoy (Radix bajó su ritmo de desarrollo tras ser adquirida por WorkOS). El código se copia al proyecto en vez de instalarse como dependencia cerrada, así que se puede simplificar libremente. |
 | Ruteo | React Router | Navegación entre pantallas de una SPA. |
 | Datos de API | TanStack Query | Cachea, reintenta y maneja estados de carga/error. Permite empezar con datos simulados (mocks) y reemplazarlos por la API real sin tocar la lógica de las pantallas. |
 | Íconos | lucide-react | Íconos simples y claros. Se usan siempre acompañados de texto, nunca solos. |
