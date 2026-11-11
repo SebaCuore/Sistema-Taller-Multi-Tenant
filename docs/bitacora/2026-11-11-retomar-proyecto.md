@@ -15,8 +15,9 @@
 - `python3 scripts/verificar_docs.py` → sin problemas.
 - Historial de la CI en GitHub: las 3 corridas anteriores fallaron en `npm run build` del frontend; el backend pasaba.
 
-**No verificado**
-- Backend: en esta sesión no había .NET SDK disponible, así que no se compiló localmente. Se revisaron las clases a mano (el `using` que faltaba ya estaba arreglado); lo confirma la CI en el próximo push.
+**Verificado después, en la CI**
+- Primera corrida en verde desde agosto (commit `8cfa66f`): backend compila (`dotnet build`), frontend `build` + `lint` OK, job `docs` OK. Con eso queda confirmado el backend, que en la sesión no se había podido compilar por falta de .NET SDK.
+- `gh` instalado y autenticado en la PC del dueño; el agente ya puede seguir la CI con `gh run watch`.
 
 **Esperando decisión**
 - Charla con el dueño del taller sobre `Producto`/`Venta` (bloquea la Fase 6).
