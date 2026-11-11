@@ -25,4 +25,4 @@
 - "Finalizar" no pide confirmación (la pantalla lo describe como el flujo normal de trabajos rápidos); la orden entregada queda bloqueada.
 - La pantalla de edición de datos del vehículo sigue pendiente (llega con el historial, Fase 4, según `pantallas.md`).
 - Quedan órdenes de prueba en la base de desarrollo local.
-- CI de GitHub: anotada abajo al terminar.
+- CI de GitHub en verde para el commit `feat: add workshop board, order detail, service selection and first e2e test` (corrida 43040639948).
