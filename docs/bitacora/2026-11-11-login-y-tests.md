@@ -22,4 +22,4 @@
 
 - **Un pedido sin token a un endpoint protegido → 401, y un recurso de otro taller → 404, por HTTP**: todavía no existe ningún endpoint protegido de negocio. Quedan cubiertos a nivel `DbContext` y se repiten por HTTP en la Fase 2 con `Vehiculo`.
 - El usuario `admin@ejemplo.com` de la base de desarrollo local es de pruebas.
-- El flujo de la CI: ver el último commit de esta sesión (anotado abajo cuando termine).
+- CI de GitHub en verde para el commit `feat: add login endpoint, crear-admin, backend test suite and login screen` (corrida 43037037835: backend con los 10 tests vía Testcontainers, frontend lint + build + test, docs).
