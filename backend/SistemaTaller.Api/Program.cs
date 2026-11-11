@@ -6,6 +6,7 @@ using SistemaTaller.Api.Common;
 using SistemaTaller.Api.Data;
 using SistemaTaller.Api.Data.Entidades;
 using SistemaTaller.Api.Features.Auth;
+using SistemaTaller.Api.Features.Vehiculos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthEndpoints();
+app.MapVehiculoEndpoints();
 
 app.Run();
 return 0;

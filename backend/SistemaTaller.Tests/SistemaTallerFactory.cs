@@ -1,4 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SistemaTaller.Api.Common;
@@ -76,6 +81,21 @@ public class SistemaTallerFactory : WebApplicationFactory<Program>, IAsyncLifeti
             await db.SaveChangesAsync();
         }
         return (tallerId, vehiculoId);
+    }
+
+    /// <summary>Cliente HTTP con un JWT válido del taller indicado (sin pasar por el login).</summary>
+    public HttpClient CrearClienteAutenticadoComo(Guid tallerId)
+    {
+        var claves = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ClaveJwt));
+        var token = new JwtSecurityToken(
+            issuer: "sistema-taller-api", audience: "sistema-taller-frontend",
+            claims: [new Claim("sub", Guid.NewGuid().ToString()), new Claim("taller_id", tallerId.ToString()), new Claim("rol", "Admin")],
+            expires: DateTime.UtcNow.AddHours(1),
+            signingCredentials: new SigningCredentials(claves, SecurityAlgorithms.HmacSha256));
+        var cliente = CreateClient();
+        cliente.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
+        return cliente;
     }
 
     public async Task SembrarUsuario(Guid tallerId, string email, string password)
