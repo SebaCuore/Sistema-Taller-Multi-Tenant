@@ -263,14 +263,12 @@ public interface ITallerActual
 // Common/TallerActual.cs
 public sealed class TallerActual : ITallerActual
 {
-    public Guid TallerId { get; }
+    private readonly IHttpContextAccessor _accessor;
+    public TallerActual(IHttpContextAccessor accessor) => _accessor = accessor;
 
-    public TallerActual(IHttpContextAccessor accessor)
-    {
-        var claim = accessor.HttpContext?.User.FindFirst("taller_id")
-            ?? throw new InvalidOperationException("El usuario autenticado no tiene taller_id en el token.");
-        TallerId = Guid.Parse(claim.Value);
-    }
+    // Perezoso: el DbContext también se construye en pedidos sin token (login).
+    public Guid TallerId => Guid.Parse((_accessor.HttpContext?.User.FindFirst("taller_id")
+        ?? throw new InvalidOperationException("El usuario autenticado no tiene taller_id en el token.")).Value);
 }
 ```
 
@@ -289,6 +287,8 @@ public class TallerDbContext : DbContext
     {
         _tallerActual = tallerActual;
     }
+
+    private Guid TallerIdActual => _tallerActual.TallerId;
 
     public DbSet<Taller> Talleres => Set<Taller>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
@@ -311,7 +311,10 @@ public class TallerDbContext : DbContext
             // Arma, por reflexión, el equivalente a: e => e.TallerId == _tallerActual.TallerId
             var parametro = Expression.Parameter(entidad.ClrType, "e");
             var propiedad = Expression.Property(parametro, nameof(IPerteneceATaller.TallerId));
-            var valorActual = Expression.Constant(_tallerActual.TallerId);
+            // OJO: el valor sale de un miembro del contexto (TallerIdActual => _tallerActual.TallerId),
+            // NO de Expression.Constant(valor): EF cachea el modelo y una constante lo dejaría fijado
+            // al taller del primer pedido.
+            var valorActual = Expression.Property(Expression.Constant(this), nameof(TallerIdActual));
             var comparacion = Expression.Equal(propiedad, valorActual);
             var lambda = Expression.Lambda(comparacion, parametro);
 

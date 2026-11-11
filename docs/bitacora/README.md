@@ -12,6 +12,7 @@ La más nueva arriba.
 
 | Fecha | Fase | Sesión |
 |---|---|---|
+| 2026-11-11 | 1 en curso | [DbContext, configuraciones y migración inicial](2026-11-11-dbcontext-y-migracion.md) |
 | 2026-11-11 | 0 cerrada · 1 en curso | [Retomar el proyecto y preparar el trabajo autónomo](2026-11-11-retomar-proyecto.md) |
 
 Las capturas de pantalla de cada fase van en `capturas/fase-N/` y se enlazan desde la sesión correspondiente.

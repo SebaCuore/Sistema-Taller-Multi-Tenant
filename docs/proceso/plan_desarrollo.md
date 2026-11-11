@@ -50,10 +50,10 @@ Sin esto no se puede probar nada más con datos reales: todo el resto de las fas
 
 **Backend** (detalle completo en [`backend.md`](../tecnica/backend.md)):
 - [x] Las 9 entidades en `Data/Entidades/` (incluidos los enums).
-- [ ] `TallerDbContext` completo, con los `DbSet` y el filtro global por `taller_id`.
-- [ ] Una clase de configuración por entidad en `Data/Configuraciones/`.
-- [ ] Migración inicial con el seed de `Taller`, `TipoVehiculo` (Auto/Moto) y el catálogo por defecto de `Servicio` ([`base_de_datos.md`](../tecnica/base_de_datos.md)).
-- [ ] `dotnet ef database update` corrido contra Postgres local.
+- [x] `TallerDbContext` completo, con los `DbSet` y el filtro global por `taller_id`.
+- [x] Una clase de configuración por entidad en `Data/Configuraciones/`.
+- [x] Migración inicial con el seed de `Taller`, `TipoVehiculo` (Auto/Moto) y el catálogo por defecto de `Servicio` ([`base_de_datos.md`](../tecnica/base_de_datos.md)).
+- [x] `dotnet ef database update` corrido contra Postgres local.
 - [ ] Autenticación: `POST /auth/login` completo (JWT con claims `sub`/`taller_id`/`rol`), `ITallerActual`/`TallerActual`, manejo global de errores (`IExceptionHandler`), CORS habilitado para `http://localhost:5173`.
 - [ ] Primer usuario admin creado con `dotnet run -- crear-admin ...`.
 
