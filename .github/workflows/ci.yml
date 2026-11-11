@@ -19,7 +19,14 @@ jobs:
           dotnet-version: '10.0.x'
       - run: dotnet restore
       - run: dotnet build --no-restore
-      - run: dotnet test --no-build
+      # Corre los tests solo si ya existe el proyecto backend/SistemaTaller.Tests (se crea en la Fase 1).
+      - name: dotnet test
+        run: |
+          if ls ../SistemaTaller.Tests/*.csproj >/dev/null 2>&1; then
+            dotnet test ../SistemaTaller.Tests
+          else
+            echo "::warning::Todavia no existe backend/SistemaTaller.Tests - se saltean los tests de backend"
+          fi
 
   frontend:
     runs-on: ubuntu-latest
@@ -35,4 +42,6 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
-      - run: npm test -- --run
+      - run: npm run lint
+      # --if-present: no falla mientras no exista el script "test" (Vitest se suma en la Fase 1).
+      - run: npm run test --if-present -- --run

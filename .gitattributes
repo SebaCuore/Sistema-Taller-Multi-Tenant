@@ -1,0 +1,4 @@
+# Normaliza fin de línea a LF en el repo (en Windows, Git puede seguir usando CRLF en la copia local)
+* text=auto
+*.png binary
+*.svg text
