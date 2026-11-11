@@ -13,6 +13,8 @@ export const vehiculosReal: ApiVehiculos = {
     }
   },
 
+  obtener: (id: string) => pedir<Vehiculo>(`/api/vehiculos/${id}`),
+
   crear: (entrada: VehiculoEntrada) =>
     pedir<Vehiculo>('/api/vehiculos', { method: 'POST', body: JSON.stringify(entrada) }),
 

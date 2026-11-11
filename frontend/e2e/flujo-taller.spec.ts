@@ -54,4 +54,21 @@ test('flujo completo del taller', async ({ page }) => {
   await page.getByRole('button', { name: 'Sí, finalizar' }).click()
   await expect(page.getByRole('link', { name: '+ Nuevo vehículo' })).toBeVisible()
   await expect(page.getByRole('link', { name: new RegExp(patente) })).toHaveCount(0)
+  // Fase 4: la orden finalizada aparece en el historial, buscando por patente, con servicios y precios
+  await page.getByRole('link', { name: 'Historial' }).click()
+  await page.getByLabel('Buscar por patente').fill(patente.toLowerCase())
+  await page.getByRole('button', { name: 'Buscar' }).click()
+  const entrada = page.getByRole('link', { name: new RegExp(patente) })
+  await expect(entrada).toContainText('Balanceo · Delantero · Izquierda')
+  await expect(entrada).toContainText('Rotación')
+  await expect(entrada).toContainText('$ 28.000')
+
+  // Detalle histórico (solo lectura) y edición de los datos del vehículo
+  await entrada.click()
+  await expect(page.getByText('Ya no se puede modificar')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Finalizar' })).toHaveCount(0)
+  await page.getByRole('link', { name: 'Editar datos del vehículo' }).click()
+  await page.getByLabel('Marca').fill('Chevrolet')
+  await page.getByRole('button', { name: 'Guardar cambios' }).click()
+  await expect(page.getByText('Chevrolet')).toBeVisible()
 })

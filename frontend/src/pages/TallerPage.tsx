@@ -1,18 +1,17 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { apiOrdenes } from '@/api/ordenes'
 import type { EstadoOrden } from '@/api/tipos'
-import { Button } from '@/components/ui/button'
+import Layout from '@/components/Layout'
 import { CLASE_ESTADO, ETIQUETA_ESTADO } from '@/lib/estados'
-import { borrarToken, obtenerToken } from '@/lib/sesion'
+import { obtenerToken } from '@/lib/sesion'
 import { pesos, tiempoTranscurrido } from '@/lib/tiempo'
 
 type Filtro = 'Todos' | Exclude<EstadoOrden, 'Entregado'>
 const FILTROS: Filtro[] = ['Todos', 'Ingresado', 'EnProceso', 'ListoParaRetirar']
 
 export default function TallerPage() {
-  const navegar = useNavigate()
   const [filtro, setFiltro] = useState<Filtro>('Todos')
   const ordenes = useQuery({ queryKey: ['ordenes'], queryFn: () => apiOrdenes.listar() })
 
@@ -21,20 +20,9 @@ export default function TallerPage() {
   const visibles = (ordenes.data ?? []).filter((o) => filtro === 'Todos' || o.estado === filtro)
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-5 px-4 pt-6 pb-28">
-      <header className="flex items-center justify-between gap-3">
-        <h1 className="font-heading text-3xl font-bold">Taller</h1>
-        <Button
-          variant="outline"
-          className="h-14 px-5 text-lg"
-          onClick={() => {
-            borrarToken()
-            navegar('/login', { replace: true })
-          }}
-        >
-          Cerrar sesión
-        </Button>
-      </header>
+    <Layout>
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 pt-6 pb-44 md:pb-28">
+      <h1 className="font-heading text-3xl font-bold">Taller</h1>
 
       <div role="group" aria-label="Filtrar por estado" className="flex flex-wrap gap-3">
         {FILTROS.map((f) => (
@@ -82,7 +70,7 @@ export default function TallerPage() {
         ))}
       </ul>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-border bg-background p-4">
+      <div className="fixed inset-x-0 bottom-[4.5rem] border-t border-border bg-background p-4 md:bottom-0 md:left-60">
         <Link
           to="/vehiculos/nuevo"
           className="mx-auto flex h-14 w-full max-w-md items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground"
@@ -91,5 +79,6 @@ export default function TallerPage() {
         </Link>
       </div>
     </main>
+    </Layout>
   )
 }

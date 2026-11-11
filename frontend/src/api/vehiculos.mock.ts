@@ -22,6 +22,11 @@ export const vehiculosMock: ApiVehiculos = {
     const p = normalizarPatente(patente)
     return [...guardados].reverse().find((v) => v.patente === p) ?? null
   },
+  async obtener(id) {
+    const v = guardados.find((x) => x.id === id)
+    if (!v) throw new Error('No existe')
+    return { ...v }
+  },
   async crear(entrada) {
     const nuevo: Vehiculo = {
       id: crypto.randomUUID(),

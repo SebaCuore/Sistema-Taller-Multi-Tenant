@@ -133,13 +133,13 @@ El corazón del sistema. Usa el catálogo de servicios ya sembrado en la Fase 1 
 Son consultas de solo lectura sobre lo que ya existe desde la Fase 3 — fase corta.
 
 **Backend:**
-- [ ] `GET /api/historial/servicios?patente=...` (RF-22, RF-23).
+- [x] `GET /api/historial/servicios?patente=...` (RF-22, RF-23).
 
 **Frontend:**
-- [ ] Pantalla 4 (Historial → Servicios), con buscador por patente, tarjetas en mobile / tabla en escritorio.
+- [x] Pantalla 4 (Historial → Servicios), con buscador por patente, tarjetas en mobile / tabla en escritorio. Incluye el contenedor de navegación (barra inferior en mobile, lateral en escritorio; hoy solo Taller e Historial), el detalle histórico de solo lectura (la misma pantalla de la orden, ya entregada) y la edición de datos del vehículo (RF-08) con el botón "Editar datos del vehículo".
 
 **Testing:**
-- [ ] Test de integración: buscar por patente de otro taller no devuelve resultados (mismo espíritu que la batería de aislamiento, aplicado a una consulta en vez de un CRUD).
+- [x] Test de integración: buscar por patente de otro taller no devuelve resultados (mismo espíritu que la batería de aislamiento, aplicado a una consulta en vez de un CRUD).
 
 **Checkpoint:** buscar por la patente usada en la Fase 3 y ver la orden finalizada con sus servicios y precios.
 

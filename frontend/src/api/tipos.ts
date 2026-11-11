@@ -31,6 +31,7 @@ export interface ApiVehiculos {
   tiposVehiculo(): Promise<TipoVehiculo[]>
   /** El registro más reciente de esa patente, o null si nunca estuvo (RF-07). */
   buscarPorPatente(patente: string): Promise<Vehiculo | null>
+  obtener(id: string): Promise<Vehiculo>
   crear(entrada: VehiculoEntrada): Promise<Vehiculo>
   editar(id: string, entrada: VehiculoEntrada): Promise<Vehiculo>
 }
@@ -118,4 +119,24 @@ export interface ApiOrdenes {
   /** Solo estados en curso; para entregar se usa finalizar(). */
   cambiarEstado(id: string, estado: Exclude<EstadoOrden, 'Entregado'>): Promise<OrdenDetalle>
   finalizar(id: string): Promise<OrdenDetalle>
+}
+
+// ---- Historial de servicios (Fase 4) ----
+
+export interface HistorialServicio {
+  ordenId: string
+  vehiculoId: string
+  patente: string
+  tipo: string
+  marca: string | null
+  modelo: string | null
+  fechaIngreso: string
+  fechaEntrega: string
+  total: number
+  servicios: ItemOrden[]
+}
+
+export interface ApiHistorial {
+  /** Órdenes entregadas, la más reciente primero; `patente` filtra (acepta parte de la patente). */
+  servicios(patente?: string): Promise<HistorialServicio[]>
 }

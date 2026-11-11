@@ -76,8 +76,8 @@ export default function OrdenDetallePage() {
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-2xl flex-col gap-6 px-4 py-6">
-      <Link to="/" className="flex h-14 w-fit items-center rounded-lg border border-border px-5 text-lg font-medium">
-        ← Volver al taller
+      <Link to={cerrada ? '/historial' : '/'} className="flex h-14 w-fit items-center rounded-lg border border-border px-5 text-lg font-medium">
+        {cerrada ? '← Volver al historial' : '← Volver al taller'}
       </Link>
 
       <header className="flex flex-col gap-2">
@@ -95,6 +95,14 @@ export default function OrdenDetallePage() {
             {ETIQUETA_ESTADO[o.estado]}
           </span>
         </p>
+        {cerrada && (
+          <Link
+            to={`/vehiculos/${o.vehiculoId}/editar`}
+            className="flex h-14 w-fit items-center rounded-lg border border-border px-5 text-lg font-medium"
+          >
+            Editar datos del vehículo
+          </Link>
+        )}
         {cerrada && o.fechaEntrega && <p className="text-lg">Entregada el {fechaArgentina(o.fechaEntrega)}. Ya no se puede modificar.</p>}
       </header>
 
