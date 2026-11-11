@@ -22,4 +22,4 @@
 - El historial no pagina: devuelve como máximo las 200 órdenes más recientes.
 - Contra una base con mucho historial no se midió rendimiento.
 - Ajustes (⚙) y "Catálogo de servicios" llegan en la Fase 5.
-- CI de GitHub: anotada abajo al terminar.
+- CI de GitHub en verde (corrida 43048058237).
