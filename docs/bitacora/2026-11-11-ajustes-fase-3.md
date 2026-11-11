@@ -20,4 +20,4 @@
 
 - El E2E sigue sin correr en la CI.
 - Durante la sesión el contenedor de Postgres local estaba apagado; se levantó con `docker compose up -d` (los datos persisten).
-- CI de GitHub: anotada abajo al terminar.
+- CI de GitHub en verde (corrida 43046825234).
