@@ -1,6 +1,6 @@
 # Requerimientos funcionales
 
-Alcance: MVP (primer lanzamiento). Ver `mvp.md` para el corte explícito entre lo que entra ahora y lo que queda para después.
+Alcance: MVP (primer lanzamiento). Ver [`mvp.md`](mvp.md) para el corte explícito entre lo que entra ahora y lo que queda para después.
 
 ## 1. Autenticación y usuarios
 
@@ -18,7 +18,7 @@ Alcance: MVP (primer lanzamiento). Ver `mvp.md` para el corte explícito entre l
 
 ## 3. Catálogo de servicios
 
-- **RF-09**: Cada taller debe contar con un catálogo propio de servicios, sembrado inicialmente con una lista por defecto (ver `data_base.md`).
+- **RF-09**: Cada taller debe contar con un catálogo propio de servicios, sembrado inicialmente con una lista por defecto (ver [`base_de_datos.md`](../tecnica/base_de_datos.md)).
 - **RF-10**: Debe poder activarse/desactivarse un servicio del catálogo sin eliminarlo.
 - **RF-11**: Debe poder agregarse un servicio propio, no incluido en la lista por defecto.
 - **RF-12**: Cada servicio puede tener un precio de referencia, opcional.
@@ -42,14 +42,14 @@ Alcance: MVP (primer lanzamiento). Ver `mvp.md` para el corte explícito entre l
 
 ## 6. Stock de productos
 
-> Alcance funcional de alto nivel — el detalle de campos de `Producto` queda pendiente (ver `mvp.md`).
+> Alcance funcional de alto nivel — el detalle de campos de `Producto` queda pendiente (ver [`mvp.md`](mvp.md)).
 
 - **RF-24**: Debe poder agregarse, editarse, eliminarse y consultarse un producto en el stock.
 - **RF-25**: Cada producto debe tener al menos nombre, precio y cantidad en stock.
 
 ## 7. Ventas de productos
 
-> Alcance funcional de alto nivel — el detalle fino queda pendiente (ver `mvp.md`).
+> Alcance funcional de alto nivel — el detalle fino queda pendiente (ver [`mvp.md`](mvp.md)).
 
 - **RF-26**: Debe poder registrarse la venta de un producto seleccionándolo desde el stock, sin necesidad de asociarla a un cliente ni a un vehículo.
 - **RF-27**: Al registrar una venta, debe descontarse automáticamente la cantidad vendida del stock del producto.
@@ -58,4 +58,4 @@ Alcance: MVP (primer lanzamiento). Ver `mvp.md` para el corte explícito entre l
 
 ## Fuera de alcance para el MVP
 
-Ver el detalle completo en `mvp.md`. En resumen: facturación electrónica (AFIP), notificaciones automáticas al cliente, portal de cliente, sistema de roles granular, onboarding de nuevos talleres como producto SaaS, detalle avanzado de Stock/Producto.
+Ver el detalle completo en [`mvp.md`](mvp.md). En resumen: facturación electrónica (AFIP), notificaciones automáticas al cliente, portal de cliente, sistema de roles granular, onboarding de nuevos talleres como producto SaaS, detalle avanzado de Stock/Producto.

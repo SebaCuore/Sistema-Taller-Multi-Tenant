@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Estado del repositorio
 
-Repo git activo; se trabaja directo sobre `main` (ver "Protocolo de trabajo autónomo", más abajo). **Fase 0 de `docs/plan_desarrollo.md` terminada** (git + CI + Docker Compose + esqueletos de backend y frontend + tokens de color migrados). **Fase 1 en curso**: de lo que pide esa fase solo existen las entidades de `Data/Entidades/`. Todavía **no** hay `TallerDbContext`, ni `Data/Configuraciones/`, ni migraciones, ni `ITallerActual`, ni endpoints (`Features/` está vacío — `Program.cs` sigue siendo el "Hello World!" de la plantilla), ni proyecto de tests, ni Vitest, ni pantalla de login (el frontend sigue mostrando la plantilla de Vite).
+Repo git activo; se trabaja directo sobre `main` (ver "Protocolo de trabajo autónomo", más abajo). **Fase 0 de [`plan_desarrollo.md`](docs/proceso/plan_desarrollo.md) terminada** (git + CI + Docker Compose + esqueletos de backend y frontend + tokens de color migrados). **Fase 1 en curso**: de lo que pide esa fase solo existen las entidades de `Data/Entidades/`. Todavía **no** hay `TallerDbContext`, ni `Data/Configuraciones/`, ni migraciones, ni `ITallerActual`, ni endpoints (`Features/` está vacío — `Program.cs` sigue siendo el "Hello World!" de la plantilla), ni proyecto de tests, ni Vitest, ni pantalla de login (el frontend sigue mostrando la plantilla de Vite).
 
-La CI (`.github/workflows/ci.yml`) corre en cada push a `main`: backend `restore` + `build`; frontend `npm ci` + `build` + `lint`. Los pasos de test **se saltean** mientras no existan `backend/SistemaTaller.Tests/` y el script `test` de `frontend/package.json` — crearlos es parte de la Fase 1, y desde ese momento la CI los corre sola, sin tocar el workflow.
+La CI (`.github/workflows/ci.yml`) corre en cada push a `main`: backend `restore` + `build`; frontend `npm ci` + `build` + `lint`; docs `scripts/verificar_docs.py`. Los pasos de test **se saltean** mientras no existan `backend/SistemaTaller.Tests/` y el script `test` de `frontend/package.json` — crearlos es parte de la Fase 1, y desde ese momento la CI los corre sola, sin tocar el workflow.
 
-**`docs/bitacora.md`** tiene el registro de cada sesión (qué se hizo, qué se verificó, qué quedó pendiente o esperando decisión). Leer la última entrada antes de empezar.
+**La bitácora ([`docs/bitacora/`](docs/bitacora/README.md))** tiene el registro de cada sesión (qué se hizo, qué se verificó, qué quedó pendiente) y, arriba de todo, lo que está **esperando decisión** del dueño. Leer su índice y la última entrada antes de empezar.
 
 El idioma del proyecto es **español** — documentación, nombres de entidades, propiedades y rutas (`TallerId`, `patente`, `OrdenTrabajo`, `/api/vehiculos`) van en español, y el código nuevo debe seguir esa convención. Excepción deliberada: los **mensajes de commit van en inglés**, con prefijo (`feat`/`fix`/`docs`/`test`/`chore`).
 
@@ -44,7 +44,7 @@ dotnet test --filter FullyQualifiedName~Aislamiento  # solo la batería de talle
 dotnet test --filter "FullyQualifiedName~AislamientoTallerTests.ListarNoDevuelveDatosDeOtroTaller"
 ```
 
-Sin Docker: definir `TESTS_CONNECTION_STRING` apuntando a un Postgres disponible (por ejemplo `Host=localhost;Username=postgres;Password=devpassword`) y la factory de tests lo usa en vez de Testcontainers (ver `docs/testing.md`).
+Sin Docker: definir `TESTS_CONNECTION_STRING` apuntando a un Postgres disponible (por ejemplo `Host=localhost;Username=postgres;Password=devpassword`) y la factory de tests lo usa en vez de Testcontainers (ver [`testing.md`](docs/proceso/testing.md)).
 
 Frontend — desde `frontend/`:
 
@@ -55,31 +55,34 @@ npm run lint
 npx shadcn@latest add <componente>
 ```
 
-Prototipo visual: `python -m http.server --directory design` (Chrome no permite automatizar `file://`).
+Prototipo visual: `python -m http.server --directory docs/diseno/prototipos` (Chrome no permite automatizar `file://`).
 
-## Documentación — orden de lectura
+## Documentación
 
-| Archivo | Cuándo leerlo |
+Toda la documentación vive en `docs/`, organizada en subcarpetas por tema. **El punto de entrada es [`docs/README.md`](docs/README.md)**: índice general con cada documento, qué contiene y cuándo leerlo. Cada subcarpeta tiene además su propio `README.md` con el índice de esa carpeta.
+
+| Carpeta | Qué hay |
 |---|---|
-| `docs/plan_desarrollo.md` | **Empezar acá para escribir código**: fases verticales con checklist y checkpoint |
-| `docs/description.md` | Visión general, filosofía, decisiones deliberadamente pendientes |
-| `docs/functional_requirements.md` | Requerimientos RF-01…RF-29 (referenciar por número al implementar) |
-| `docs/data_base.md` | Modelo lógico: entidades, campos, relaciones, catálogo sembrado |
-| `docs/architecture.md` | Stack a alto nivel, multi-tenancy y seguridad |
-| `docs/backend.md` | El más denso y el más importante: estructura, convenciones EF Core, filtro por `taller_id`, auth JWT, ejemplo de endpoint completo |
-| `docs/frontend.md` | Stack y guías de accesibilidad |
-| `docs/screens.md` | Pantallas, navegación y patrón responsive |
-| `docs/design.md` | Dirección visual: tokens de color, tipografía, elementos propios |
-| `docs/mvp.md` | Corte MVP vs. futuro |
-| `docs/testing.md` | Qué se testea, con qué y cuándo — la batería de aislamiento por `taller_id` es prioridad máxima |
-| `docs/flujo_de_trabajo.md` | Git, GitHub y GitHub Actions: commits y CI (el modo actual, directo a `main`, está en "Protocolo de trabajo autónomo" de este archivo) |
-| `docs/bitacora.md` | Qué se hizo y verificó en cada sesión — leer la última entrada al empezar |
+| [`docs/producto/`](docs/producto/README.md) | Qué es el sistema, requerimientos RF-01…RF-29 (referenciar por número al implementar), corte MVP vs. futuro, decisiones deliberadamente pendientes |
+| [`docs/tecnica/`](docs/tecnica/README.md) | Arquitectura y multi-tenancy, modelo de datos, frontend, y [`backend.md`](docs/tecnica/backend.md) — el más denso y el más importante: estructura, convenciones EF Core, filtro por `taller_id`, auth JWT, ejemplo de endpoint completo |
+| [`docs/diseno/`](docs/diseno/README.md) | Dirección visual (tokens de color, tipografía), pantallas y navegación, prototipos HTML |
+| [`docs/proceso/`](docs/proceso/README.md) | [`plan_desarrollo.md`](docs/proceso/plan_desarrollo.md) (**empezar acá para escribir código**: fases con checklist y checkpoint), testing (la batería de aislamiento por `taller_id` es prioridad máxima), Git y CI |
+| [`docs/bitacora/`](docs/bitacora/README.md) | Una entrada por sesión de trabajo: qué se hizo, qué se verificó, qué quedó pendiente o esperando decisión |
 
-Al cambiar decisiones de producto o alcance, actualizar el documento correspondiente en la misma tanda — estos archivos son la fuente de verdad del proyecto, no notas históricas. Vale también para este `CLAUDE.md` y para los checklists de `plan_desarrollo.md`.
+Para programar: fase en curso de `plan_desarrollo.md` → los documentos que esa fase cita → `backend.md` / `pantallas.md` para cada endpoint o pantalla.
+
+### Reglas para mantener la documentación navegable
+
+- **Nada suelto**: todo documento nuevo va en la subcarpeta de `docs/` que le corresponde. En la raíz del repo solo quedan `README.md` y este `CLAUDE.md`. Si aparece un tema nuevo que va a tener varios documentos, se crea una subcarpeta con su propio `README.md`.
+- **Todo indexado**: al crear, mover, renombrar o borrar un documento, en el mismo commit se actualiza el `README.md` de su carpeta y [`docs/README.md`](docs/README.md). Cada entrada del índice lleva el link y una línea de qué contiene o cuándo leerlo.
+- **Nombres**: en español, en minúsculas con `_`, sin tildes ni espacios, y únicos dentro de `docs/` (una búsqueda por nombre encuentra un solo archivo).
+- **Referencias entre documentos con links Markdown relativos** (por ejemplo `[backend.md](../tecnica/backend.md)`), no con el nombre suelto, para que se puedan seguir con un click en GitHub o en el editor.
+- **Un tema, un lugar**: si algo ya está documentado, se enlaza en vez de repetirlo. Estos documentos son la fuente de verdad del proyecto, no notas históricas: al cambiar una decisión de producto o de alcance se actualiza el documento correspondiente en la misma tanda (vale también para este `CLAUDE.md` y para los checklists del plan).
+- **Comprobación automática**: `python scripts/verificar_docs.py` revisa que no haya links rotos, que cada documento figure en el índice de su carpeta y que cada carpeta con documentos tenga su `README.md`. Corre también en la CI (job `docs`); si falla, se arregla como cualquier otro rojo.
 
 ## Invariantes de arquitectura (no negociables)
 
-- **Aislamiento por `taller_id`.** Toda tabla de negocio lleva `TallerId` e implementa `IPerteneceATaller` (`Common/IPerteneceATaller.cs`). El filtro se impone **en la capa de acceso a datos**, no endpoint por endpoint: `TallerDbContext.OnModelCreating` recorre el modelo y aplica un global query filter con nombre (`"FiltroTaller"`, EF Core 10) a toda entidad que implemente la interfaz, y `SaveChangesAsync` asigna el `TallerId` a las entidades nuevas. Consecuencia práctica: **una entidad nueva solo tiene que implementar `IPerteneceATaller`** y queda filtrada sola; nunca se filtra a mano en un endpoint, nunca se lee el `taller_id` de un DTO o query string — sale del claim del JWT vía `ITallerActual` (scoped, igual que el `DbContext`). Código exacto en `docs/backend.md` → "El filtro por `taller_id`".
+- **Aislamiento por `taller_id`.** Toda tabla de negocio lleva `TallerId` e implementa `IPerteneceATaller` (`Common/IPerteneceATaller.cs`). El filtro se impone **en la capa de acceso a datos**, no endpoint por endpoint: `TallerDbContext.OnModelCreating` recorre el modelo y aplica un global query filter con nombre (`"FiltroTaller"`, EF Core 10) a toda entidad que implemente la interfaz, y `SaveChangesAsync` asigna el `TallerId` a las entidades nuevas. Consecuencia práctica: **una entidad nueva solo tiene que implementar `IPerteneceATaller`** y queda filtrada sola; nunca se filtra a mano en un endpoint, nunca se lee el `taller_id` de un DTO o query string — sale del claim del JWT vía `ITallerActual` (scoped, igual que el `DbContext`). Código exacto en [`backend.md`](docs/tecnica/backend.md) → "El filtro por `taller_id`".
 - **`IgnoreQueryFilters()` y `FromSqlRaw` esquivan el filtro.** Única aparición legítima en el MVP: la búsqueda del usuario en `POST /auth/login`, donde todavía no hay `taller_id` conocido. En cualquier otro lugar es un bug de seguridad.
 - **El frontend nunca asume un solo taller**, aunque hoy exista un único registro en `Taller`.
 - **No existe entidad Cliente.** El vehículo es la entidad central; el contacto del dueño (`ContactoNombre`, `ContactoTelefono`) vive en `Vehiculo`. La `Patente` es la clave de búsqueda principal (índice compuesto `(TallerId, Patente)`).
@@ -99,7 +102,7 @@ Al cambiar decisiones de producto o alcance, actualizar el documento correspondi
 
 Un solo proyecto Web API con **minimal APIs**, organizado **por función** (`Features/Vehiculos/`, `Features/OrdenesTrabajo/`…), no por capa técnica. Regla para ubicar un archivo nuevo: dominio/base de datos → `Data/`; operación que el frontend llama → `Features/<Área>/`; infraestructura compartida → `Common/`.
 
-Convenciones que se rompen fácil (detalle en `docs/backend.md`):
+Convenciones que se rompen fácil (detalle en [`backend.md`](docs/tecnica/backend.md)):
 
 - Entidades **POCO limpias**, sin Data Annotations — la configuración vive en `Data/Configuraciones/` (una `IEntityTypeConfiguration<T>` por entidad).
 - IDs `Guid` generados con `Guid.CreateVersion7()`; excepción: los `HasData` sembrados necesitan GUIDs fijos.
@@ -110,14 +113,14 @@ Convenciones que se rompen fácil (detalle en `docs/backend.md`):
 - Ciclo al agregar algo: entidad → configuración → `dotnet ef migrations add` → `database update` → recién ahí el endpoint.
 - Todo endpoint lleva `.RequireAuthorization()` salvo `POST /auth/login`.
 
-**Sin** Clean Architecture multi-proyecto, **sin** MediatR, **sin** Repository/UnitOfWork sobre el `DbContext`, **sin** ASP.NET Core Identity completo, **sin** AutoMapper — descartados a propósito, no por olvido (`docs/backend.md` → "Qué evitar a propósito"). No reintroducirlos.
+**Sin** Clean Architecture multi-proyecto, **sin** MediatR, **sin** Repository/UnitOfWork sobre el `DbContext`, **sin** ASP.NET Core Identity completo, **sin** AutoMapper — descartados a propósito, no por olvido ([`backend.md`](docs/tecnica/backend.md) → "Qué evitar a propósito"). No reintroducirlos.
 
 ## Frontend (React 19 + TS + Vite + Tailwind 4 + shadcn/ui)
 
 - Tailwind 4 se configura **en CSS, no en un `tailwind.config.js`**: `frontend/src/index.css` tiene el bloque `@theme inline` y los tokens en `:root` / `.dark`. Los tokens del prototipo ya están migrados ahí (`--primary` = azul de patente `#0A3FA8`, `--listo`, `--proceso`, `--destructive`, `--spacing-tap: 56px`, fuentes Archivo/Alegreya Sans). Cambiar la paleta = editar ese archivo, nada más.
 - shadcn/ui está inicializado con estilo `base-nova` sobre `@base-ui/react` (no Radix); alias `@/` → `src/`.
 - `src/{api,hooks,pages,styles}` existen vacíos en la copia local, esperando la Fase 1 (Git no versiona carpetas vacías: en un clon nuevo hay que crearlas). **`api/` debe poder alternar entre mocks y la API real sin tocar `pages/`**, servido a través de TanStack Query.
-- `design/prototipo.html` es la referencia visual (HTML/CSS plano, 7 pantallas, datos simulados). `design/prototipo-v1.html` es solo referencia de comparación, no fuente de verdad.
+- [`prototipo.html`](docs/diseno/prototipos/prototipo.html) es la referencia visual (HTML/CSS plano, 7 pantallas, datos simulados). [`prototipo-v1.html`](docs/diseno/prototipos/prototipo-v1.html) es solo referencia de comparación, no fuente de verdad.
 
 ## Accesibilidad — restricciones duras de UI
 
@@ -133,12 +136,12 @@ El público son mecánicos, muchos de edad avanzada y usando el celular con las 
 
 ## Protocolo de trabajo autónomo (agente)
 
-Decisión del dueño (2026-11-11): el proyecto lo avanza un agente sin supervisión directa, que **commitea y pushea directo a `main`**; el dueño revisa el producto y la bitácora. Esto reemplaza el flujo de rama por fase + Pull Request de `docs/flujo_de_trabajo.md` (queda documentado ahí como alternativa). Como la CI ya no actúa de barrera antes de `main`, la verificación de abajo es la que la reemplaza — no es opcional.
+Decisión del dueño (2026-11-11): el proyecto lo avanza un agente sin supervisión directa, que **commitea y pushea directo a `main`**; el dueño revisa el producto y la bitácora. Esto reemplaza el flujo de rama por fase + Pull Request de [`flujo_de_trabajo.md`](docs/proceso/flujo_de_trabajo.md) (queda documentado ahí como alternativa). Como la CI ya no actúa de barrera antes de `main`, la verificación de abajo es la que la reemplaza — no es opcional.
 
 ### 1. Al empezar cada sesión
 
 - `git pull` sobre `main`. El repo se edita también desde Windows (`core.autocrlf=true`); si trabajás desde Linux sobre esa misma carpeta, pasá `-c core.autocrlf=true` a cada comando `git` para no ver todos los archivos como modificados.
-- Leer la última entrada de `docs/bitacora.md`, la sección "Estado del repositorio" y la fase en curso de `docs/plan_desarrollo.md` (la primera con casillas sin tildar).
+- Leer la última entrada de [`bitacora/`](docs/bitacora/README.md), la sección "Estado del repositorio" y la fase en curso de [`plan_desarrollo.md`](docs/proceso/plan_desarrollo.md) (la primera con casillas sin tildar).
 - Confirmar que la última corrida de CI en `main` está en verde: `gh run list --branch main --limit 1`. Si está en rojo, arreglar eso antes que cualquier otra cosa.
 
 ### 2. Mientras se trabaja
@@ -157,14 +160,14 @@ Un ítem del checklist se tilda solo cuando se **comprobó ejecutándolo** que f
 2. **Base de datos desde cero**: con Postgres vacío (`docker compose down -v && docker compose up -d`, o una base nueva si no hay Docker), `dotnet ef database update` aplica todas las migraciones sin errores y el seed queda cargado.
 3. **API levantada de verdad**: `dotnet run` y probar con `curl` los endpoints de la fase — login → token → cada endpoint nuevo con el token; un pedido sin token tiene que dar 401 y uno sobre un recurso de otro taller, 404.
 4. **Frontend**: `npm run lint`, `npm run build` y `npm test` en verde.
-5. **Recorrido en navegador**: con la API y `npm run dev` levantados, recorrer el checkpoint de la fase en un navegador real (Playwright headless sirve) a 390px de ancho (mobile) y a 1280px (escritorio). Guardar capturas en `docs/bitacora/fase-N/` y revisar en ellas las restricciones de la sección "Accesibilidad" de este archivo.
+5. **Recorrido en navegador**: con la API y `npm run dev` levantados, recorrer el checkpoint de la fase en un navegador real (Playwright headless sirve) a 390px de ancho (mobile) y a 1280px (escritorio). Guardar capturas en `docs/bitacora/capturas/fase-N/` y revisar en ellas las restricciones de la sección "Accesibilidad" de este archivo.
 6. **Revisión contra las reglas**: releer los RF de la fase, "Invariantes de arquitectura" y "Reglas de dominio fáciles de romper"; `grep -rn "IgnoreQueryFilters\|FromSqlRaw" backend/` no debe mostrar nada fuera de `POST /auth/login`.
 7. **CI en verde** en GitHub para el último commit de la fase.
-8. **Checkpoint** de la fase en `plan_desarrollo.md` cumplido tal como está escrito.
+8. **Checkpoint** de la fase en [`plan_desarrollo.md`](docs/proceso/plan_desarrollo.md) cumplido tal como está escrito.
 
-Recién entonces: tildar las casillas en `plan_desarrollo.md`, actualizar "Estado del repositorio" en este archivo, escribir la entrada de la bitácora, commit `docs:` y push.
+Recién entonces: tildar las casillas en [`plan_desarrollo.md`](docs/proceso/plan_desarrollo.md), actualizar "Estado del repositorio" en este archivo, escribir la entrada de la bitácora, commit `docs:` y push.
 
-Si un paso no se puede ejecutar en el entorno (por ejemplo, no hay Docker o no hay navegador), **no se da por pasado**: se usa la alternativa documentada (Postgres local + `TESTS_CONNECTION_STRING`, ver `docs/testing.md`) o se anota en la bitácora como **no verificado**, y la fase queda abierta.
+Si un paso no se puede ejecutar en el entorno (por ejemplo, no hay Docker o no hay navegador), **no se da por pasado**: se usa la alternativa documentada (Postgres local + `TESTS_CONNECTION_STRING`, ver [`testing.md`](docs/proceso/testing.md)) o se anota en la bitácora como **no verificado**, y la fase queda abierta.
 
 ### 4. Cuándo parar y dejarle la decisión al dueño
 
@@ -174,11 +177,17 @@ Agregar a la bitácora una sección **"Esperando decisión"** con la pregunta co
 - Se llega a la **Fase 7**: elegir hosting, crear cuentas, gastar plata y cargar secretos de producción los decide el dueño.
 - Una tarea depende de algo de "Pendiente de definición", o los documentos se contradicen entre sí.
 - Haría falta algo irreversible o fuera del repositorio: reescribir historial, cambiar la configuración de GitHub, crear servicios externos o pagos.
+- Algo del entorno no funciona y no se resuelve en dos o tres intentos razonables (Docker, .NET SDK, Postgres, credenciales de GitHub o `gh`).
 
-### 5. Bitácora (`docs/bitacora.md`)
+En una sesión interactiva (Claude Code en la terminal del dueño), además de anotarlo en la bitácora hay que **frenar y avisarle ahí mismo**: qué se intentó, qué está bloqueando y qué se necesita de él. Si queda trabajo que no depende de lo bloqueado, se puede seguir con eso mientras tanto.
 
-Una entrada por sesión, la más nueva arriba: fecha, fase, qué se hizo (commits), qué se verificó y cómo (comandos y resultado), qué quedó **no verificado** o pendiente, y lo que esté esperando decisión. Es lo que lee el dueño para seguir el avance: escribirla para alguien que no vio la sesión, en español.
+### 5. Bitácora ([`docs/bitacora/`](docs/bitacora/README.md))
+
+- **Un archivo por sesión**: `docs/bitacora/AAAA-MM-DD-tema-corto.md` (si hay dos el mismo día, sufijo `-2`). Contiene: fase, qué se hizo (commits), qué se verificó y cómo (comandos y resultado), qué quedó **no verificado** o pendiente, y lo que esté esperando decisión.
+- **Índice**: cada sesión nueva se agrega arriba de la tabla de [`docs/bitacora/README.md`](docs/bitacora/README.md), y la sección "Esperando decisión" de ese índice se mantiene al día (agregar lo nuevo, sacar lo resuelto): es lo primero que mira el dueño.
+- **Capturas** en `docs/bitacora/capturas/fase-N/`, enlazadas desde la entrada de la sesión.
+- En español, escrita para alguien que no vio la sesión.
 
 ## Pendiente de definición (no inventar)
 
-Plataforma de hosting (candidatas en `docs/architecture.md`: Render, Railway, Fly.io, Azure App Service) y el detalle fino de `Producto`/`Venta` (categorías, proveedores, códigos) siguen deliberadamente sin decidir — esto último bloquea la Fase 6 hasta hablar con el dueño del taller. Si una tarea depende de algo pendiente, preguntar en vez de asumir.
+Plataforma de hosting (candidatas en [`arquitectura.md`](docs/tecnica/arquitectura.md): Render, Railway, Fly.io, Azure App Service) y el detalle fino de `Producto`/`Venta` (categorías, proveedores, códigos) siguen deliberadamente sin decidir — esto último bloquea la Fase 6 hasta hablar con el dueño del taller. Si una tarea depende de algo pendiente, preguntar en vez de asumir.

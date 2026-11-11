@@ -16,15 +16,15 @@ Aplicación web cliente-servidor clásica:
 
 ## Frontend
 
-- **React + TypeScript + Vite + Tailwind CSS + shadcn/ui.** Detalle completo del stack y de las guías de accesibilidad/usabilidad en [`frontend.md`](./frontend.md).
-- Consume una API HTTP del backend (REST, ver [`backend.md`](./backend.md)).
+- **React + TypeScript + Vite + Tailwind CSS + shadcn/ui.** Detalle completo del stack y de las guías de accesibilidad/usabilidad en [`frontend.md`](frontend.md).
+- Consume una API HTTP del backend (REST, ver [`backend.md`](backend.md)).
 - No debe asumir que existe un solo taller: toda vista que liste datos (vehículos, órdenes, servicios, stock) opera siempre dentro del contexto de un `taller_id`, aunque hoy solo exista uno.
-- Totalmente online, sin soporte offline en el MVP (decisión explícita — ver `mvp.md`).
+- Totalmente online, sin soporte offline en el MVP (decisión explícita — ver [`mvp.md`](../producto/mvp.md)).
 - Se construye con datos simulados (mocks vía TanStack Query) antes de que exista el backend, para validar pantallas y detectar requerimientos faltantes.
 
 ## Backend y base de datos
 
-**Decidido: ASP.NET Core sobre .NET 10, con Entity Framework Core 10 y PostgreSQL.** El detalle de estructura de proyecto, convenciones de EF Core y cómo se implementa en código el aislamiento por `taller_id` está en [`backend.md`](./backend.md) — este documento se queda con el porqué de la elección.
+**Decidido: ASP.NET Core sobre .NET 10, con Entity Framework Core 10 y PostgreSQL.** El detalle de estructura de proyecto, convenciones de EF Core y cómo se implementa en código el aislamiento por `taller_id` está en [`backend.md`](backend.md) — este documento se queda con el porqué de la elección.
 
 Motivo de cada pieza, en base a los criterios que ya se habían dejado anotados acá:
 
@@ -39,14 +39,14 @@ Motivo de cada pieza, en base a los criterios que ya se habían dejado anotados 
 
 - Todas las tablas cuyo contenido pertenece a un taller (`Vehiculo`, `Servicio`, `OrdenTrabajo`, `Producto`, `Venta`, `Usuario`, etc.) tienen una columna `taller_id` que referencia a `Taller`.
 - Hoy existe un único registro en `Taller`, pero el modelo ya soporta N talleres sin cambios de esquema.
-- **Regla de seguridad no negociable:** ninguna consulta a estas tablas puede ejecutarse sin filtrar por el `taller_id` del usuario autenticado. Esto se resuelve a nivel de capa de acceso a datos (no confiar en que cada endpoint lo recuerde por separado), para evitar que un bug filtre datos de un taller a otro. La implementación concreta (global query filters de EF Core aplicados automáticamente a toda entidad marcada) está en [`backend.md`](./backend.md).
+- **Regla de seguridad no negociable:** ninguna consulta a estas tablas puede ejecutarse sin filtrar por el `taller_id` del usuario autenticado. Esto se resuelve a nivel de capa de acceso a datos (no confiar en que cada endpoint lo recuerde por separado), para evitar que un bug filtre datos de un taller a otro. La implementación concreta (global query filters de EF Core aplicados automáticamente a toda entidad marcada) está en [`backend.md`](backend.md).
 - Alternativas descartadas por ahora: esquema o base de datos separada por taller (más aislamiento, pero mucho más costo operativo para el volumen actual — se puede reconsiderar si el producto crece fuerte como SaaS).
 
 ## Seguridad
 
 (Se documenta acá, como sección, en vez de un archivo aparte — el proyecto arranca chico; si crece, se puede separar a `security.md`.)
 
-- **Autenticación**: usuario + contraseña, con JWT emitido por el backend tras validar credenciales (detalle en `backend.md`). Contraseñas siempre hasheadas (BCrypt), nunca en texto plano ni en logs.
+- **Autenticación**: usuario + contraseña, con JWT emitido por el backend tras validar credenciales (detalle en [`backend.md`](backend.md)). Contraseñas siempre hasheadas (BCrypt), nunca en texto plano ni en logs.
 - **HTTPS obligatorio** en el entorno de producción — sin excepciones, dado que es un requisito explícito del proyecto ("seguro para lanzar a la web").
 - **Secretos y credenciales** (contraseña de base de datos, clave de firma del JWT, etc.) siempre por variables de entorno (o `dotnet user-secrets` en desarrollo), nunca hardcodeados ni versionados en el repositorio.
 - **Aislamiento entre talleres**: ver sección anterior — es, en la práctica, el requisito de seguridad más importante del sistema una vez que haya más de un taller.

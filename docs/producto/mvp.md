@@ -21,9 +21,9 @@ El MVP prioriza: (1) un flujo de trabajo diario completo para un único taller, 
 ## Pendiente de definición técnica (no funcional, pero necesario antes de programar)
 
 - **Detalle del módulo Stock/Producto.** Campos adicionales, categorías, comportamiento fino de la venta — a definir en una sesión propia.
-- **Plataforma de hosting concreta.** El stack (ASP.NET Core + PostgreSQL, ver `backend.md`) no ata a ninguna en particular; candidatas relevadas en `architecture.md` (Render, Railway, Fly.io, Azure App Service). Se elige más cerca del momento de desplegar.
+- **Plataforma de hosting concreta.** El stack (ASP.NET Core + PostgreSQL, ver [`backend.md`](../tecnica/backend.md)) no ata a ninguna en particular; candidatas relevadas en [`arquitectura.md`](../tecnica/arquitectura.md) (Render, Railway, Fly.io, Azure App Service). Se elige más cerca del momento de desplegar.
 
-Ya resuelto — ver [`architecture.md`](./architecture.md) y [`backend.md`](./backend.md): stack de backend (ASP.NET Core sobre .NET 10), ORM (Entity Framework Core 10) y motor de base de datos (PostgreSQL).
+Ya resuelto — ver [`arquitectura.md`](../tecnica/arquitectura.md) y [`backend.md`](../tecnica/backend.md): stack de backend (ASP.NET Core sobre .NET 10), ORM (Entity Framework Core 10) y motor de base de datos (PostgreSQL).
 
 ## Fuera del MVP — fases futuras
 
@@ -39,4 +39,4 @@ Ya resuelto — ver [`architecture.md`](./architecture.md) y [`backend.md`](./ba
 
 ## Próximos pasos
 
-El orden fase por fase, con checklist, está en [`plan_desarrollo.md`](./plan_desarrollo.md) — arranca por la base del backend + login, sigue por Vehículos y Órdenes de trabajo (el corazón del sistema), y deja Stock/Ventas para después de cerrar su detalle con el dueño del taller. En paralelo, sigue pendiente entrevistar al dueño del primer taller con esta propuesta (`description.md` + `functional_requirements.md` + el prototipo navegable en `design/prototipo.html` son los documentos más útiles para esa charla) para validar el enfoque y resolver el detalle de Stock/Producto que bloquea esa fase.
+El orden fase por fase, con checklist, está en [`plan_desarrollo.md`](../proceso/plan_desarrollo.md) — arranca por la base del backend + login, sigue por Vehículos y Órdenes de trabajo (el corazón del sistema), y deja Stock/Ventas para después de cerrar su detalle con el dueño del taller. En paralelo, sigue pendiente entrevistar al dueño del primer taller con esta propuesta ([`descripcion.md`](descripcion.md) + [`requerimientos_funcionales.md`](requerimientos_funcionales.md) + el prototipo navegable en [`prototipo.html`](../diseno/prototipos/prototipo.html) son los documentos más útiles para esa charla) para validar el enfoque y resolver el detalle de Stock/Producto que bloquea esa fase.

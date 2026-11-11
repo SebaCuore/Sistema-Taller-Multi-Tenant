@@ -11,14 +11,14 @@
 | Ruteo | React Router | Navegación entre pantallas de una SPA. |
 | Datos de API | TanStack Query | Cachea, reintenta y maneja estados de carga/error. Permite empezar con datos simulados (mocks) y reemplazarlos por la API real sin tocar la lógica de las pantallas. |
 | Íconos | lucide-react | Íconos simples y claros. Se usan siempre acompañados de texto, nunca solos. |
-| Testing de componentes | Vitest + React Testing Library | Pareja natural de Vite. Detalle de qué se testea y por qué en [`testing.md`](./testing.md). |
-| Testing end-to-end | Playwright | Un test de flujo completo por hito importante, no por pantalla — ver `testing.md`. |
+| Testing de componentes | Vitest + React Testing Library | Pareja natural de Vite. Detalle de qué se testea y por qué en [`testing.md`](../proceso/testing.md). |
+| Testing end-to-end | Playwright | Un test de flujo completo por hito importante, no por pantalla — ver [`testing.md`](../proceso/testing.md). |
 
 ## Enfoque general
 
 - **Mobile-first.** Se diseña primero la versión de celular y se adapta hacia arriba para pantallas de escritorio — coherente con que la mayoría del uso va a ser desde el celular.
-- **Totalmente online.** Sin soporte offline en el MVP (decisión explícita — ver `mvp.md`). Toda pantalla asume que hay conexión disponible.
-- **El patrón `api/` alterna entre mocks y la API real.** Servido a través de TanStack Query, permite construir y probar una pantalla incluso si el endpoint real de esa función todavía no existe. En la práctica, backend y frontend se construyen función por función, no todo un lado primero — ver `plan_desarrollo.md`.
+- **Totalmente online.** Sin soporte offline en el MVP (decisión explícita — ver [`mvp.md`](../producto/mvp.md)). Toda pantalla asume que hay conexión disponible.
+- **El patrón `api/` alterna entre mocks y la API real.** Servido a través de TanStack Query, permite construir y probar una pantalla incluso si el endpoint real de esa función todavía no existe. En la práctica, backend y frontend se construyen función por función, no todo un lado primero — ver [`plan_desarrollo.md`](../proceso/plan_desarrollo.md).
 
 ## Guías de accesibilidad y usabilidad
 
@@ -48,8 +48,8 @@ src/
 
 ## Pantallas
 
-El detalle completo de pantallas, navegación (mobile y escritorio) y el patrón responsive a usar en cada tipo de pantalla está en [`screens.md`](./screens.md).
+El detalle completo de pantallas, navegación (mobile y escritorio) y el patrón responsive a usar en cada tipo de pantalla está en [`pantallas.md`](../diseno/pantallas.md).
 
 ## Próximo paso
 
-El plan de implementación fase por fase (qué pantalla se construye en qué momento, y contra qué parte del backend) está en [`plan_desarrollo.md`](./plan_desarrollo.md), empezando por el esqueleto del proyecto en su Fase 0.
+El plan de implementación fase por fase (qué pantalla se construye en qué momento, y contra qué parte del backend) está en [`plan_desarrollo.md`](../proceso/plan_desarrollo.md), empezando por el esqueleto del proyecto en su Fase 0.

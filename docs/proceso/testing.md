@@ -1,16 +1,16 @@
 # Testing
 
-Define qué rol tiene el testing en este proyecto y cómo se hace, en proporción al tamaño real del proyecto — nada de perseguir un porcentaje de cobertura, pero el aislamiento por `taller_id` (ver `backend.md`) no es negociable: es la única parte del sistema donde un bug no se nota en el momento, se nota cuando un taller ve datos de otro.
+Define qué rol tiene el testing en este proyecto y cómo se hace, en proporción al tamaño real del proyecto — nada de perseguir un porcentaje de cobertura, pero el aislamiento por `taller_id` (ver [`backend.md`](../tecnica/backend.md)) no es negociable: es la única parte del sistema donde un bug no se nota en el momento, se nota cuando un taller ve datos de otro.
 
 ## Rol del testing acá
 
 Este proyecto tiene poca lógica de negocio compleja — la mayoría del backend es CRUD sobre Entity Framework Core. Eso cambia dónde conviene invertir el esfuerzo de testing respecto de un proyecto típico:
 
 - **Poco valor** en unit tests aislados de cada entidad o cada mapeo — es código mecánico, de bajo riesgo, y ya lo cubre el compilador de C# más las migraciones de EF Core.
-- **Mucho valor** en tests de integración que ejercitan el `DbContext` real contra una base Postgres real — porque ahí es donde vive el filtro por `taller_id`, las conversiones de enum a texto, y el manejo de fechas en UTC (todo lo documentado en `backend.md` como "detalles que rompen en tiempo de ejecución, no en compilación").
-- **Máximo valor, y no negociable**: la batería de tests que prueba específicamente que un taller nunca puede ver ni tocar datos de otro. Se escribe primero, antes que cualquier feature — es el gate de salida de la Fase 1 de `plan_desarrollo.md`, no un extra al final.
+- **Mucho valor** en tests de integración que ejercitan el `DbContext` real contra una base Postgres real — porque ahí es donde vive el filtro por `taller_id`, las conversiones de enum a texto, y el manejo de fechas en UTC (todo lo documentado en [`backend.md`](../tecnica/backend.md) como "detalles que rompen en tiempo de ejecución, no en compilación").
+- **Máximo valor, y no negociable**: la batería de tests que prueba específicamente que un taller nunca puede ver ni tocar datos de otro. Se escribe primero, antes que cualquier feature — es el gate de salida de la Fase 1 de [`plan_desarrollo.md`](plan_desarrollo.md), no un extra al final.
 
-GitHub Actions corre `dotnet test` y `npm test` en cada push a `main` (ver `flujo_de_trabajo.md`), pero eso no reemplaza correrlos antes de pushear: como se trabaja directo sobre `main`, una fase no se cierra sin la verificación completa de `CLAUDE.md` → "Definición de terminado".
+GitHub Actions corre `dotnet test` y `npm test` en cada push a `main` (ver [`flujo_de_trabajo.md`](flujo_de_trabajo.md)), pero eso no reemplaza correrlos antes de pushear: como se trabaja directo sobre `main`, una fase no se cierra sin la verificación completa de [`CLAUDE.md`](../../CLAUDE.md) → "Definición de terminado".
 
 ## La pirámide aplicada a este proyecto
 
@@ -24,7 +24,7 @@ Al revés de un proyecto con mucha lógica de dominio, acá la base de la pirám
 
 ## Tests de aislamiento por `taller_id` (prioridad máxima — Fase 1)
 
-Herramientas: **xUnit** + `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory<Program>`) + **`Testcontainers.PostgreSql`** (levanta un Postgres real y descartable por corrida de tests — no usar SQLite en memoria acá: no fuerza `timestamptz` en UTC ni maneja igual los enums-como-texto, y esas son justo las dos cosas que `backend.md` marca como más propensas a romper en tiempo de ejecución).
+Herramientas: **xUnit** + `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory<Program>`) + **`Testcontainers.PostgreSql`** (levanta un Postgres real y descartable por corrida de tests — no usar SQLite en memoria acá: no fuerza `timestamptz` en UTC ni maneja igual los enums-como-texto, y esas son justo las dos cosas que [`backend.md`](../tecnica/backend.md) marca como más propensas a romper en tiempo de ejecución).
 
 Estructura típica del fixture — dos talleres, cada uno con sus propios datos:
 
@@ -77,11 +77,11 @@ El detalle de `SistemaTallerFactory` (un `WebApplicationFactory` que arranca el 
 
 **Entornos sin Docker.** Si la variable de entorno `TESTS_CONNECTION_STRING` está definida, `SistemaTallerFactory` usa ese Postgres en vez de levantar un Testcontainer: crea una base con nombre único por corrida (por ejemplo `tests_<guid>`), aplica las migraciones y la borra al terminar. Así los tests corren igual en una máquina o en un agente sin Docker. En la CI la variable no se define y se usa Testcontainers, como en el resto de este documento.
 
-**Estas tres pruebas (listar, pedir por id, alta) se repiten para cada entidad nueva que implemente `IPerteneceATaller`** a medida que se agregan features en `plan_desarrollo.md` — no hace falta reinventar el fixture, solo instanciar el mismo patrón contra `Servicio`, `OrdenTrabajo`, `Producto`, `Venta`.
+**Estas tres pruebas (listar, pedir por id, alta) se repiten para cada entidad nueva que implemente `IPerteneceATaller`** a medida que se agregan features en [`plan_desarrollo.md`](plan_desarrollo.md) — no hace falta reinventar el fixture, solo instanciar el mismo patrón contra `Servicio`, `OrdenTrabajo`, `Producto`, `Venta`.
 
 ## Tests de integración del resto del CRUD
 
-Un test de integración por endpoint, camino feliz + el error más obvio (ej. dar de alta una orden con un `servicio_id` inexistente) — no una combinatoria de todos los campos posibles. Mismo `WebApplicationFactory`, se escriben junto con cada fase de `plan_desarrollo.md`, no antes ni después.
+Un test de integración por endpoint, camino feliz + el error más obvio (ej. dar de alta una orden con un `servicio_id` inexistente) — no una combinatoria de todos los campos posibles. Mismo `WebApplicationFactory`, se escriben junto con cada fase de [`plan_desarrollo.md`](plan_desarrollo.md), no antes ni después.
 
 ## Unit tests puros (sin base de datos)
 
@@ -103,7 +103,7 @@ Pareja natural de Vite. Test de componente para lo que tiene lógica interactiva
 
 ## End-to-end: Playwright (uno solo para empezar, recién en la Fase 3)
 
-Playwright ya está listo para usarse sin instalación adicional. E2E rinde cuando hay una app real para clickear, así que no tiene sentido antes de tener algo andando — el primero se escribe apenas se cumple el checkpoint de la Fase 3 de `plan_desarrollo.md` (login → alta de vehículo → orden con servicios → finalizar), porque ese es exactamente el flujo que más le costaría a un cambio futuro romper sin que nadie se dé cuenta. Un solo test E2E bien elegido vale más que diez sueltos — no hace falta cubrir cada pantalla con E2E, para eso están los tests de integración y de componente.
+Playwright ya está listo para usarse sin instalación adicional. E2E rinde cuando hay una app real para clickear, así que no tiene sentido antes de tener algo andando — el primero se escribe apenas se cumple el checkpoint de la Fase 3 de [`plan_desarrollo.md`](plan_desarrollo.md) (login → alta de vehículo → orden con servicios → finalizar), porque ese es exactamente el flujo que más le costaría a un cambio futuro romper sin que nadie se dé cuenta. Un solo test E2E bien elegido vale más que diez sueltos — no hace falta cubrir cada pantalla con E2E, para eso están los tests de integración y de componente.
 
 ## Herramientas — resumen
 

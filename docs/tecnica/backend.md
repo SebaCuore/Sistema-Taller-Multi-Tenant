@@ -1,12 +1,12 @@
 # Backend
 
-Define cómo se construye el backend: estructura de proyecto, entidades y configuración completa de Entity Framework Core, autenticación, manejo de errores y una guía paso a paso para arrancar. Complementa a `data_base.md` (qué existe) y `functional_requirements.md` (qué debe hacer); este documento es el "cómo" en código, con suficiente detalle como para empezar a programar sin tener que tomar decisiones de diseño sobre la marcha.
+Define cómo se construye el backend: estructura de proyecto, entidades y configuración completa de Entity Framework Core, autenticación, manejo de errores y una guía paso a paso para arrancar. Complementa a [`base_de_datos.md`](base_de_datos.md) (qué existe) y [`requerimientos_funcionales.md`](../producto/requerimientos_funcionales.md) (qué debe hacer); este documento es el "cómo" en código, con suficiente detalle como para empezar a programar sin tener que tomar decisiones de diseño sobre la marcha.
 
 ## Stack
 
 | Pieza | Elección | Por qué |
 |---|---|---|
-| Runtime | **.NET 10** (LTS) | Versión con soporte largo vigente. Ver `architecture.md` para el porqué frente a Node.js. |
+| Runtime | **.NET 10** (LTS) | Versión con soporte largo vigente. Ver [`arquitectura.md`](arquitectura.md) para el porqué frente a Node.js. |
 | Framework web | **ASP.NET Core**, con **Minimal APIs** organizadas en `MapGroup` por área funcional | Menos ceremonia que Controllers para el tamaño de este proyecto. |
 | ORM | **Entity Framework Core 10** | Migraciones, LINQ tipado, y los *global query filters* que resuelven el aislamiento multi-taller en la capa de acceso a datos. |
 | Base de datos | **PostgreSQL**, vía `Npgsql.EntityFrameworkCore.PostgreSQL` | Gratis, código abierto, soportado de fábrica por cualquier PaaS. |
@@ -108,7 +108,7 @@ Regla simple para no dudar dónde va un archivo nuevo: si es de dominio/base de 
 
 ## Convenciones de entidades
 
-- Nombres de clases y propiedades **en español, PascalCase**, siguiendo la convención de dominio ya establecida en `CLAUDE.md` (`Vehiculo`, `OrdenTrabajo`, `TallerId`).
+- Nombres de clases y propiedades **en español, PascalCase**, siguiendo la convención de dominio ya establecida en [`CLAUDE.md`](../../CLAUDE.md) (`Vehiculo`, `OrdenTrabajo`, `TallerId`).
 - Las entidades son **POCOs limpios**, sin atributos de Data Annotations ni nada específico de EF Core — toda esa configuración vive en `Data/Configuraciones/`.
 - **IDs**: `Guid`, generado en el cliente con `Guid.CreateVersion7()` (disponible desde .NET 9) — a diferencia de un `Guid` random clásico, la versión 7 es ordenable en el tiempo y evita fragmentar el índice en tablas que crecen todo el tiempo (`OrdenTrabajo`, `Venta`). Excepción: los datos sembrados con `HasData` (ver "Datos iniciales") necesitan `Guid` fijos y conocidos de antemano, no se puede usar `CreateVersion7()` ahí.
 - **Montos**: siempre `decimal`, nunca `float`/`double`. En la configuración: `.HasColumnType("numeric(12,2)")`.
@@ -120,7 +120,7 @@ Regla simple para no dudar dónde va un archivo nuevo: si es de dominio/base de 
 
 ## Entidades completas
 
-Traducción 1:1 de `data_base.md`. `TipoVehiculo` es la única tabla de negocio que **no** implementa `IPerteneceATaller` — es catálogo global (Auto/Moto), no tiene `taller_id` en el modelo lógico.
+Traducción 1:1 de [`base_de_datos.md`](base_de_datos.md). `TipoVehiculo` es la única tabla de negocio que **no** implementa `IPerteneceATaller` — es catálogo global (Auto/Moto), no tiene `taller_id` en el modelo lógico.
 
 ```csharp
 // Common/IPerteneceATaller.cs
@@ -212,7 +212,7 @@ public class OrdenTrabajo : IPerteneceATaller
 
 // Data/Entidades/OrdenTrabajoServicio.cs — lleva TallerId propio (redundante con
 // OrdenTrabajo.TallerId) para que el filtro global la cubra sin depender de un join.
-// Ver data_base.md.
+// Ver docs/tecnica/base_de_datos.md.
 public class OrdenTrabajoServicio : IPerteneceATaller
 {
     public Guid Id { get; set; }
@@ -249,7 +249,7 @@ public class Venta : IPerteneceATaller
 
 ## El filtro por `taller_id` (la parte que no se puede olvidar)
 
-Implementación concreta del requisito no negociable de `architecture.md`: *"ninguna consulta puede ejecutarse sin filtrar por el `taller_id` del usuario autenticado, impuesto en la capa de acceso a datos, no endpoint por endpoint."*
+Implementación concreta del requisito no negociable de [`arquitectura.md`](arquitectura.md): *"ninguna consulta puede ejecutarse sin filtrar por el `taller_id` del usuario autenticado, impuesto en la capa de acceso a datos, no endpoint por endpoint."*
 
 **1. Servicio que expone el taller del usuario autenticado**, leído del JWT (nunca de un parámetro que mande el cliente):
 
@@ -436,7 +436,7 @@ public class VentaConfiguration : IEntityTypeConfiguration<Venta>
 
 Dos mecanismos distintos, a propósito:
 
-**1. Catálogos y datos de referencia → `HasData` en la configuración**, aplicado por una migración. Esto es lo estándar para datos que no cambian por el usuario final (o que casi no cambian): `TipoVehiculo` (Auto/Moto), el `Taller` único de hoy, y la lista por defecto de `Servicio` sugerida en `data_base.md`. `HasData` necesita `Guid` fijos, conocidos de antemano (no se puede usar `Guid.CreateVersion7()` acá):
+**1. Catálogos y datos de referencia → `HasData` en la configuración**, aplicado por una migración. Esto es lo estándar para datos que no cambian por el usuario final (o que casi no cambian): `TipoVehiculo` (Auto/Moto), el `Taller` único de hoy, y la lista por defecto de `Servicio` sugerida en [`base_de_datos.md`](base_de_datos.md). `HasData` necesita `Guid` fijos, conocidos de antemano (no se puede usar `Guid.CreateVersion7()` acá):
 
 ```csharp
 public class TipoVehiculoConfiguration : IEntityTypeConfiguration<TipoVehiculo>
@@ -454,7 +454,7 @@ public class TipoVehiculoConfiguration : IEntityTypeConfiguration<TipoVehiculo>
 }
 ```
 
-Mismo patrón para sembrar el `Taller` ("San Martín", el mismo nombre que ya usa `design/prototipo.html`) y el catálogo de `Servicio` (Alineación, Balanceo, Reparación de neumático, Cambio de neumáticos, Rotación, Service de moto, Mecánica general — con los `aplica_posicion`/`aplica_lado` de `data_base.md`). **Los precios sembrados son los del prototipo, a confirmar con el dueño real del taller antes de ir a producción.**
+Mismo patrón para sembrar el `Taller` ("San Martín", el mismo nombre que ya usa [`prototipo.html`](../diseno/prototipos/prototipo.html)) y el catálogo de `Servicio` (Alineación, Balanceo, Reparación de neumático, Cambio de neumáticos, Rotación, Service de moto, Mecánica general — con los `aplica_posicion`/`aplica_lado` de [`base_de_datos.md`](base_de_datos.md)). **Los precios sembrados son los del prototipo, a confirmar con el dueño real del taller antes de ir a producción.**
 
 **2. El primer usuario administrador → nunca por `HasData`.** Sembrar un hash de contraseña fijo dentro de una migración significa tener una contraseña conocida versionada en el repositorio — mal, incluso si "después se cambia". En cambio, un modo de comando único en el propio `Program.cs`, pensado para correrse una sola vez después de desplegar:
 
@@ -707,14 +707,14 @@ app.MapHealthChecks("/health");
 
 ## Qué evitar a propósito (para no sobre-diseñar)
 
-Coherente con la filosofía de `description.md` ("escalable sin sobre-diseñar") y con la decisión explícita de no usar Clean Architecture para este proyecto:
+Coherente con la filosofía de [`descripcion.md`](../producto/descripcion.md) ("escalable sin sobre-diseñar") y con la decisión explícita de no usar Clean Architecture para este proyecto:
 
 - **Sin Clean Architecture de 4 proyectos** (Domain/Application/Infrastructure/Api) **ni MediatR** — evaluado y descartado a propósito: resuelve un problema (aislar el dominio de infraestructura reemplazable) que no aplica acá, porque no hay plan de cambiar de ORM ni de motor de base de datos.
 - **Sin patrón Repository/UnitOfWork** envolviendo el `DbContext` — el `DbContext` ya es un Unit of Work, y cada `DbSet<T>` ya funciona como repositorio.
 - **Sin ASP.NET Core Identity completo** — demasiado para un sistema de un solo rol sin registro público.
-- **Sin tabla de permisos separada** — ya definido como decisión en `architecture.md`.
+- **Sin tabla de permisos separada** — ya definido como decisión en [`arquitectura.md`](arquitectura.md).
 - **Sin AutoMapper** de entrada — mapear a mano mientras el número de campos por entidad se mantenga manejable.
 
 ## Testing
 
-Estrategia completa, con la batería de tests de aislamiento por `taller_id` (prioridad máxima, gate de la Fase 1 de `plan_desarrollo.md`) en [`testing.md`](./testing.md). En resumen: **xUnit** + `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory<Program>`) + `Testcontainers.PostgreSql` para tests de integración contra una base Postgres real — nunca SQLite en memoria, no fuerza `Kind = Utc` ni las conversiones de enum a texto igual que Postgres, justo los dos puntos que este documento marca como propensos a romper en tiempo de ejecución.
+Estrategia completa, con la batería de tests de aislamiento por `taller_id` (prioridad máxima, gate de la Fase 1 de [`plan_desarrollo.md`](../proceso/plan_desarrollo.md)) en [`testing.md`](../proceso/testing.md). En resumen: **xUnit** + `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory<Program>`) + `Testcontainers.PostgreSql` para tests de integración contra una base Postgres real — nunca SQLite en memoria, no fuerza `Kind = Utc` ni las conversiones de enum a texto igual que Postgres, justo los dos puntos que este documento marca como propensos a romper en tiempo de ejecución.

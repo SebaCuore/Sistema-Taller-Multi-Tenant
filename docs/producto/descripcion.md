@@ -20,7 +20,7 @@ El sistema nace para resolver la operación diaria de **un taller específico** 
 
 ## Alcance del primer lanzamiento (MVP)
 
-Ver el detalle completo en [`functional_requirements.md`](./functional_requirements.md) y el corte MVP vs. futuro en [`mvp.md`](./mvp.md). En resumen, el MVP cubre:
+Ver el detalle completo en [`requerimientos_funcionales.md`](requerimientos_funcionales.md) y el corte MVP vs. futuro en [`mvp.md`](mvp.md). En resumen, el MVP cubre:
 
 - Login de usuarios (sin sistema de roles granular todavía).
 - Alta y gestión de vehículos, con datos de contacto del dueño.
@@ -31,25 +31,12 @@ Ver el detalle completo en [`functional_requirements.md`](./functional_requireme
 
 ## Documentos de este proyecto
 
-| Archivo | Contenido |
-|---|---|
-| `description.md` | Este documento: visión general y filosofía del proyecto. |
-| `architecture.md` | Arquitectura técnica, stack elegido a alto nivel, estrategia multi-taller y seguridad. |
-| `data_base.md` | Modelo de datos: entidades, campos y relaciones. |
-| `functional_requirements.md` | Requerimientos funcionales detallados por módulo. |
-| `mvp.md` | Qué entra en el MVP y qué queda para fases futuras (roadmap). |
-| `frontend.md` | Stack de frontend y guías de accesibilidad/usabilidad. |
-| `backend.md` | Stack de backend, estructura del proyecto y convenciones de Entity Framework Core. |
-| `screens.md` | Pantallas de la primera versión y navegación (mobile y escritorio). |
-| `design.md` | Dirección visual: paleta, tipografía y elementos propios del sistema. |
-| `plan_desarrollo.md` | Plan de implementación fase por fase, con checklist. |
-| `testing.md` | Estrategia de testing: qué, con qué herramienta y cuándo. |
-| `flujo_de_trabajo.md` | Git, GitHub y GitHub Actions para un desarrollo ordenado. |
+El índice completo de la documentación, con qué contiene cada documento y cuándo leerlo, está en [`docs/README.md`](../README.md).
 
 ## Decisiones pendientes (a propósito)
 
 Estas decisiones se dejaron abiertas de forma deliberada, no por omisión — se van a resolver en una sesión de definición propia más adelante:
 
-- Plataforma de hosting concreta (frontend y backend ya definidos — ver `frontend.md` y `backend.md`).
+- Plataforma de hosting concreta (frontend y backend ya definidos — ver [`frontend.md`](../tecnica/frontend.md) y [`backend.md`](../tecnica/backend.md)).
 - Detalle de campos y comportamiento del módulo Stock/Producto.
 - Validación de esta propuesta con el dueño del primer taller.

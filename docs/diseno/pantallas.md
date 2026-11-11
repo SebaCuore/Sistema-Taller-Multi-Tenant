@@ -1,6 +1,6 @@
 # Pantallas
 
-Define la estructura de pantallas de la primera versión de frontend, mobile-first pero funcional en escritorio, siguiendo las guías de `frontend.md`.
+Define la estructura de pantallas de la primera versión de frontend, mobile-first pero funcional en escritorio, siguiendo las guías de [`frontend.md`](../tecnica/frontend.md).
 
 ## Navegación
 
@@ -89,7 +89,7 @@ Barra lateral izquierda fija, siempre visible (no hace falta ocultarla, sobra es
 - **Elementos**: listado de productos con nombre, precio y cantidad en stock. Acciones de agregar, editar y eliminar.
 - **Mobile**: tarjetas con acciones grandes (editar/eliminar) visibles, no ocultas en un menú de tres puntos difícil de tocar.
 - **Escritorio**: tabla editable.
-- **Nota**: el detalle fino de campos de producto sigue pendiente de definición propia (ver `mvp.md`) — esta pantalla se ajusta cuando eso se resuelva.
+- **Nota**: el detalle fino de campos de producto sigue pendiente de definición propia (ver [`mvp.md`](../producto/mvp.md)) — esta pantalla se ajusta cuando eso se resuelva.
 
 ## 8. Catálogo de Servicios (Ajustes)
 

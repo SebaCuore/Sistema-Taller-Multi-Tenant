@@ -1,8 +1,8 @@
 # Dirección visual
 
-Define la identidad visual del sistema: paleta, tipografía y los dos elementos propios que lo hacen reconocible. Complementa a [`frontend.md`](./frontend.md) (stack y guías de accesibilidad) y a [`screens.md`](./screens.md) (qué pantallas existen).
+Define la identidad visual del sistema: paleta, tipografía y los dos elementos propios que lo hacen reconocible. Complementa a [`frontend.md`](../tecnica/frontend.md) (stack y guías de accesibilidad) y a [`pantallas.md`](pantallas.md) (qué pantallas existen).
 
-> Prototipo navegable: [`../design/prototipo.html`](../design/prototipo.html) — un archivo, sin dependencias. Abrilo en el celular para validar tamaños táctiles reales. La versión anterior queda en [`../design/prototipo-v1.html`](../design/prototipo-v1.html) solo como referencia de comparación, no como fuente de verdad.
+> Prototipo navegable: [`prototipo.html`](prototipos/prototipo.html) — un archivo, sin dependencias. Abrilo en el celular para validar tamaños táctiles reales. La versión anterior queda en [`prototipo-v1.html`](prototipos/prototipo-v1.html) solo como referencia de comparación, no como fuente de verdad.
 
 ## De dónde sale
 
@@ -10,7 +10,7 @@ Del mundo del taller, no de una paleta genérica: chapa galvanizada, negro de go
 
 ## Tokens de color
 
-Van a un único archivo de configuración de Tailwind (ver `frontend.md`), de manera que cambiar el look completo sea editar un solo lugar.
+Van a un único archivo de configuración de Tailwind (ver [`frontend.md`](../tecnica/frontend.md)), de manera que cambiar el look completo sea editar un solo lugar.
 
 | Token | Claro | Oscuro | Uso |
 |---|---|---|---|
@@ -58,8 +58,8 @@ Todo lo demás se mantiene callado a propósito: tarjetas planas, sin gradientes
 ## Decisiones descartadas
 
 - **Stepper numerado de estados (01 → 02 → 03).** Mentiría: RF-20 dice que saltar directo a `entregado` es el caso normal de un trabajo corto. Reemplazado por un chip de estado más el tiempo transcurrido desde el ingreso, que es lo que importa en el piso del taller.
-- **Íconos sin texto en la navegación.** Prohibido por `frontend.md`; además el público no comparte el vocabulario de íconos de una app.
-- **Tablas densas en mobile.** Tarjetas en mobile, tabla recién en escritorio (ver `screens.md`).
+- **Íconos sin texto en la navegación.** Prohibido por [`frontend.md`](../tecnica/frontend.md); además el público no comparte el vocabulario de íconos de una app.
+- **Tablas densas en mobile.** Tarjetas en mobile, tabla recién en escritorio (ver [`pantallas.md`](pantallas.md)).
 
 ## Piso de calidad
 

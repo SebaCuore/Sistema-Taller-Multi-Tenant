@@ -1,12 +1,12 @@
 # Modelo de datos
 
-> Motor de base de datos aún sin definir (ver `architecture.md`). Este documento describe el modelo **lógico** (entidades, campos y relaciones), independiente del motor final.
+> Motor de base de datos aún sin definir (ver [`arquitectura.md`](arquitectura.md)). Este documento describe el modelo **lógico** (entidades, campos y relaciones), independiente del motor final.
 
 ## Convenciones
 
 - Toda tabla propia de un taller tiene `taller_id` (referencia a `Taller`).
 - Los catálogos "abiertos" (`TipoVehiculo`, `Servicio`) permiten que cada taller tenga sus propios valores activos/inactivos y agregue los suyos.
-- Los módulos `Producto` y `Venta` se listan como esqueleto mínimo: su detalle de campos queda pendiente de una definición propia (ver `mvp.md`).
+- Los módulos `Producto` y `Venta` se listan como esqueleto mínimo: su detalle de campos queda pendiente de una definición propia (ver [`mvp.md`](../producto/mvp.md)).
 
 ## Diagrama de entidades (alto nivel)
 
@@ -119,7 +119,7 @@ Detalle de servicios aplicados a una orden (una orden puede tener varios).
 | Campo | Tipo | Notas |
 |---|---|---|
 | id | identificador | PK |
-| taller_id | referencia → Taller | redundante con `orden_trabajo_id → OrdenTrabajo → taller_id`, pero necesaria: es la tabla de detalle que no tiene otra columna propia para que el filtro automático por taller (ver `backend.md`) la alcance sin depender de un join. Se completa solo, igual que en el resto de las tablas. |
+| taller_id | referencia → Taller | redundante con `orden_trabajo_id → OrdenTrabajo → taller_id`, pero necesaria: es la tabla de detalle que no tiene otra columna propia para que el filtro automático por taller (ver [`backend.md`](backend.md)) la alcance sin depender de un join. Se completa solo, igual que en el resto de las tablas. |
 | orden_trabajo_id | referencia → OrdenTrabajo | |
 | servicio_id | referencia → Servicio | |
 | posicion | texto/enum, nullable | `delantero` / `trasero`, solo si `Servicio.aplica_posicion` |
@@ -137,7 +137,7 @@ Detalle de servicios aplicados a una orden (una orden puede tener varios).
 | precio | número | |
 | stock_actual | número | puede quedar en negativo (ver `Venta`) |
 
-*Campos adicionales (categoría, proveedor, código, etc.) quedan pendientes — ver `mvp.md`.*
+*Campos adicionales (categoría, proveedor, código, etc.) quedan pendientes — ver [`mvp.md`](../producto/mvp.md).*
 
 ### Venta — esqueleto mínimo (pendiente de detalle)
 
