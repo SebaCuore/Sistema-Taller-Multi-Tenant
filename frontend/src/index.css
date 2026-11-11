@@ -143,5 +143,6 @@
     }
   html {
     @apply font-sans;
+    font-size: 18px; /* base de accesibilidad: 18px, nunca menos de 14px */
     }
 }

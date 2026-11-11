@@ -54,19 +54,19 @@ Sin esto no se puede probar nada más con datos reales: todo el resto de las fas
 - [x] Una clase de configuración por entidad en `Data/Configuraciones/`.
 - [x] Migración inicial con el seed de `Taller`, `TipoVehiculo` (Auto/Moto) y el catálogo por defecto de `Servicio` ([`base_de_datos.md`](../tecnica/base_de_datos.md)).
 - [x] `dotnet ef database update` corrido contra Postgres local.
-- [ ] Autenticación: `POST /auth/login` completo (JWT con claims `sub`/`taller_id`/`rol`), `ITallerActual`/`TallerActual`, manejo global de errores (`IExceptionHandler`), CORS habilitado para `http://localhost:5173`.
-- [ ] Primer usuario admin creado con `dotnet run -- crear-admin ...`.
+- [x] Autenticación: `POST /auth/login` completo (JWT con claims `sub`/`taller_id`/`rol`), `ITallerActual`/`TallerActual`, manejo global de errores (`IExceptionHandler`), CORS habilitado para `http://localhost:5173`.
+- [x] Primer usuario admin creado con `dotnet run -- crear-admin ...`.
 
 **Testing (no se pasa a la Fase 2 sin esto — ver [`testing.md`](testing.md)):**
-- [ ] `SistemaTallerFactory` (`WebApplicationFactory` + `Testcontainers.PostgreSql`) — la pieza de infraestructura de test que reutiliza el resto del proyecto.
-- [ ] Las tres pruebas de aislamiento por `taller_id`: listar no filtra datos de otro taller, pedir por id un recurso de otro taller da 404, un `TallerId` mandado a mano en el body de un alta se ignora.
-- [ ] La factory acepta `TESTS_CONNECTION_STRING` para correr sin Docker (ver [`testing.md`](testing.md)).
-- [ ] Frontend: Vitest + React Testing Library instalados, con script `"test": "vitest"` en `package.json` (la CI lo empieza a correr sola en cuanto existe).
+- [x] `SistemaTallerFactory` (`WebApplicationFactory` + `Testcontainers.PostgreSql`) — la pieza de infraestructura de test que reutiliza el resto del proyecto.
+- [x] Las tres pruebas de aislamiento por `taller_id` (a nivel `DbContext`; la versión HTTP se suma con los endpoints de `Vehiculo` en la Fase 2): listar no filtra datos de otro taller, pedir por id un recurso de otro taller da 404, un `TallerId` mandado a mano en el body de un alta se ignora.
+- [x] La factory acepta `TESTS_CONNECTION_STRING` para correr sin Docker (ver [`testing.md`](testing.md)).
+- [x] Frontend: Vitest + React Testing Library instalados, con script `"test": "vitest run"` en `package.json` (la CI lo empieza a correr sola en cuanto existe).
 
 **Frontend:**
-- [ ] Pantalla 0 (Login) de [`pantallas.md`](../diseno/pantallas.md), conectada de verdad a `POST /auth/login` — sin mocks acá, es la primera pantalla que tiene sentido contra la API real.
-- [ ] Guardar el token recibido (memoria/`localStorage` del lado del navegador real, no del prototipo) y mandarlo en el header `Authorization` del resto de los pedidos.
-- [ ] Mensaje de error simple si falla ("Usuario o contraseña incorrectos", sin detalle técnico — ya especificado en [`pantallas.md`](../diseno/pantallas.md)).
+- [x] Pantalla 0 (Login) de [`pantallas.md`](../diseno/pantallas.md), conectada de verdad a `POST /auth/login` — sin mocks acá, es la primera pantalla que tiene sentido contra la API real.
+- [x] Guardar el token recibido (memoria/`localStorage` del lado del navegador real, no del prototipo) y mandarlo en el header `Authorization` del resto de los pedidos.
+- [x] Mensaje de error simple si falla ("Usuario o contraseña incorrectos", sin detalle técnico — ya especificado en [`pantallas.md`](../diseno/pantallas.md)).
 
 **Checkpoint:** iniciar sesión desde el frontend real con el usuario creado por `crear-admin`, ver en las herramientas de red del navegador que el token viaja en los pedidos siguientes, y los tests de aislamiento de `taller_id` en verde (local y en el Pull Request, vía GitHub Actions).
 

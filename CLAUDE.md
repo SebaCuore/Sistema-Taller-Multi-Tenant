@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Estado del repositorio
 
-Repo git activo; se trabaja directo sobre `main` (ver "Protocolo de trabajo autónomo", más abajo). **Fase 0 de [`plan_desarrollo.md`](docs/proceso/plan_desarrollo.md) terminada** (git + CI + Docker Compose + esqueletos de backend y frontend + tokens de color migrados). **Fase 1 en curso**: existen las entidades, `TallerDbContext` con el filtro global por `taller_id`, las configuraciones, la migración inicial con seed (aplicada con éxito sobre un Postgres vacío) y `ITallerActual`. Todavía **no** hay endpoints (`Features/` está vacío — `Program.cs` solo registra el contexto y un "Hello World!"), ni `POST /auth/login`, ni `crear-admin`, ni proyecto de tests, ni Vitest, ni pantalla de login (el frontend sigue mostrando la plantilla de Vite).
+Repo git activo; se trabaja directo sobre `main` (ver "Protocolo de trabajo autónomo", más abajo). **Fases 0 y 1 de [`plan_desarrollo.md`](docs/proceso/plan_desarrollo.md) terminadas** (ver bitácora). Hay `TallerDbContext` con el filtro global por `taller_id`, migración inicial con seed, `POST /auth/login` (JWT), `crear-admin`, `IExceptionHandler`, CORS, proyecto `backend/SistemaTaller.Tests/` (batería de aislamiento a nivel `DbContext` + login) y en el frontend Vitest + pantalla de login conectada a la API real. **Fase 2 (Vehículos) es la siguiente**; `Features/` solo tiene `Auth/`. Los tests de aislamiento HTTP (listar / 404 por id / `TallerId` en el body) se suman con los endpoints de `Vehiculo`.
 
-La CI (`.github/workflows/ci.yml`) corre en cada push a `main`: backend `restore` + `build`; frontend `npm ci` + `build` + `lint`; docs `scripts/verificar_docs.py`. Los pasos de test **se saltean** mientras no existan `backend/SistemaTaller.Tests/` y el script `test` de `frontend/package.json` — crearlos es parte de la Fase 1, y desde ese momento la CI los corre sola, sin tocar el workflow.
+La CI (`.github/workflows/ci.yml`) corre en cada push a `main`: backend `restore` + `build`; frontend `npm ci` + `build` + `lint`; docs `scripts/verificar_docs.py`. Los pasos de test corren si existen `backend/SistemaTaller.Tests/` y el script `test` de `frontend/package.json` (ya existen).
 
 **La bitácora ([`docs/bitacora/`](docs/bitacora/README.md))** tiene el registro de cada sesión (qué se hizo, qué se verificó, qué quedó pendiente) y, arriba de todo, lo que está **esperando decisión** del dueño. Leer su índice y la última entrada antes de empezar.
 
@@ -36,7 +36,7 @@ dotnet run -- crear-admin admin@ejemplo.com "contraseña"   # comando propio, pr
 
 Los secretos de desarrollo van en `dotnet user-secrets` (`ConnectionStrings:Default`, `Jwt:Key`), nunca en `appsettings.json` — el `UserSecretsId` ya está en el `.csproj`.
 
-Tests de backend (cuando exista `backend/SistemaTaller.Tests/` — xUnit + `WebApplicationFactory` + `Testcontainers.PostgreSql`, requiere Docker corriendo):
+Tests de backend (`backend/SistemaTaller.Tests/` — xUnit + `WebApplicationFactory` + `Testcontainers.PostgreSql`, requiere Docker corriendo):
 
 ```bash
 dotnet test                                          # toda la suite
