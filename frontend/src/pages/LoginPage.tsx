@@ -3,10 +3,8 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { iniciarSesion } from '@/api/auth'
 import { ErrorApi } from '@/api/cliente'
 import { Button } from '@/components/ui/button'
+import { CLASE_CAMPO } from '@/lib/estilos'
 import { guardarToken, obtenerToken } from '@/lib/sesion'
-
-const CLASE_CAMPO =
-  'h-14 w-full rounded-lg border border-input bg-background px-4 text-lg outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
 
 export default function LoginPage() {
   const navegar = useNavigate()

@@ -77,18 +77,18 @@ Sin esto no se puede probar nada más con datos reales: todo el resto de las fas
 **Prerrequisito:** Fase 1 terminada.
 
 **Backend:**
-- [ ] `POST /api/vehiculos` (alta).
-- [ ] `GET /api/vehiculos/buscar-por-patente/{patente}` (para RF-07, patente conocida).
-- [ ] `PUT /api/vehiculos/{id}` (edición, RF-08).
+- [x] `POST /api/vehiculos` (alta).
+- [x] `GET /api/vehiculos/buscar-por-patente/{patente}` (para RF-07, patente conocida).
+- [x] `PUT /api/vehiculos/{id}` (edición, RF-08). Además `GET /api/vehiculos`, `GET /api/vehiculos/{id}` y `GET /api/tipos-vehiculo`. La pantalla de edición todavía no existe (RF-08 cubierto solo en la API).
 
 **Frontend:**
-- [ ] Pantalla 2 (Nuevo vehículo), paso 1 solo — datos del vehículo, sin servicios todavía (eso es Fase 3).
-- [ ] Aviso de patente conocida con confirmación explícita (RF-07) — nunca autocompletar en silencio.
-- [ ] Reemplazar el mock de este flujo por la llamada real a la API (esto valida que el patrón `api/` de [`frontend.md`](../tecnica/frontend.md), intercambiable entre mock y real, funciona como se pensó).
+- [x] Pantalla 2 (Nuevo vehículo), paso 1 solo — datos del vehículo, sin servicios todavía (eso es Fase 3).
+- [x] Aviso de patente conocida con confirmación explícita (RF-07) — nunca autocompletar en silencio.
+- [x] Reemplazar el mock de este flujo por la llamada real a la API (esto valida que el patrón `api/` de [`frontend.md`](../tecnica/frontend.md), intercambiable entre mock y real, funciona como se pensó).
 
 **Testing:**
-- [ ] Repetir la batería de aislamiento de la Fase 1 para `Vehiculo` (mismo fixture, distinta entidad).
-- [ ] Test de integración del camino feliz de cada endpoint nuevo.
+- [x] Repetir la batería de aislamiento de la Fase 1 para `Vehiculo` (mismo fixture, distinta entidad).
+- [x] Test de integración del camino feliz de cada endpoint nuevo.
 
 **Checkpoint:** dar de alta un vehículo desde el frontend, y volver a escribir la misma patente para ver aparecer el aviso de "ya estuvo acá" con el contacto guardado.
 

@@ -1,4 +1,4 @@
-import { obtenerToken } from '@/lib/sesion'
+import { borrarToken, obtenerToken } from '@/lib/sesion'
 
 export const URL_API = import.meta.env.VITE_API_URL ?? 'http://localhost:5108'
 
@@ -18,6 +18,11 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
   const respuesta = await fetch(`${URL_API}${ruta}`, { ...opciones, headers })
+  if (respuesta.status === 401 && token && !ruta.startsWith('/auth/')) {
+    // Sesión vencida o token inválido: se vuelve al login.
+    borrarToken()
+    window.location.assign('/login')
+  }
   if (!respuesta.ok) throw new ErrorApi(respuesta.status, `Error ${respuesta.status}`)
   return (await respuesta.json()) as T
 }

@@ -491,8 +491,8 @@ if (args.Length > 0 && args[0] == "crear-admin")
 - Los endpoints **nunca devuelven las entidades de EF Core directamente** — evita ciclos de serialización en las relaciones de navegación y evita exponer columnas internas por accidente. Se usan `record` de C# como DTOs, uno por feature:
 
 ```csharp
-public record VehiculoRespuesta(Guid Id, string Patente, string Tipo, string? Marca, string? Modelo, int? Anio, string? ContactoNombre, string? ContactoTelefono);
-public record VehiculoAlta(string Patente, Guid TipoVehiculoId, string? Marca, string? Modelo, int? Anio, string? ContactoNombre, string? ContactoTelefono);
+public record VehiculoRespuesta(Guid Id, string Patente, Guid TipoVehiculoId, string Tipo, string? Marca, string? Modelo, int? Anio, string? ContactoNombre, string? ContactoTelefono);
+public record VehiculoAlta(string? Patente, Guid TipoVehiculoId, string? Marca, string? Modelo, int? Anio, string? ContactoNombre, string? ContactoTelefono);
 ```
 
 - Validación mínima con Data Annotations en los DTOs de entrada (`[Required]`, `[MaxLength]`) más una validación explícita al principio de cada handler. No hace falta FluentValidation para el tamaño actual del proyecto.
@@ -590,6 +590,8 @@ await db.Productos
 ```
 
 ## Ejemplo de endpoint completo
+
+> La implementación real está en `Features/Vehiculos/VehiculoEndpoints.cs` (más completa: normalización de patente, validación con `ValidationProblem`, `PUT`, listado). Reglas que fijó: una patente puede tener varios registros (uno por alta) y `buscar-por-patente` devuelve el más reciente; la patente se guarda normalizada (mayúsculas, sin espacios ni guiones); nunca usar `Find`/`FirstOrDefault` sin pasar por el `DbContext` filtrado.
 
 ```csharp
 public static class VehiculoEndpoints
