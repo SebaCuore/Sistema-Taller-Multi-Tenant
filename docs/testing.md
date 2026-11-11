@@ -10,7 +10,7 @@ Este proyecto tiene poca lógica de negocio compleja — la mayoría del backend
 - **Mucho valor** en tests de integración que ejercitan el `DbContext` real contra una base Postgres real — porque ahí es donde vive el filtro por `taller_id`, las conversiones de enum a texto, y el manejo de fechas en UTC (todo lo documentado en `backend.md` como "detalles que rompen en tiempo de ejecución, no en compilación").
 - **Máximo valor, y no negociable**: la batería de tests que prueba específicamente que un taller nunca puede ver ni tocar datos de otro. Se escribe primero, antes que cualquier feature — es el gate de salida de la Fase 1 de `plan_desarrollo.md`, no un extra al final.
 
-No hay equipo ni CI/CD corriendo todavía (ver `flujo_de_trabajo.md`), así que por ahora el testing es una disciplina personal: correr `dotnet test` y `npm test` antes de dar por cerrada una fase del plan, no algo que se hace "cuando haya tiempo".
+GitHub Actions corre `dotnet test` y `npm test` en cada push a `main` (ver `flujo_de_trabajo.md`), pero eso no reemplaza correrlos antes de pushear: como se trabaja directo sobre `main`, una fase no se cierra sin la verificación completa de `CLAUDE.md` → "Definición de terminado".
 
 ## La pirámide aplicada a este proyecto
 
@@ -74,6 +74,8 @@ public class AislamientoTallerTests : IClassFixture<SistemaTallerFactory>
 ```
 
 El detalle de `SistemaTallerFactory` (un `WebApplicationFactory` que arranca el Testcontainer, corre las migraciones, y expone un método para emitir un JWT válido de un taller de prueba) es la primera pieza de infraestructura de test que conviene escribir — todo lo demás la reutiliza.
+
+**Entornos sin Docker.** Si la variable de entorno `TESTS_CONNECTION_STRING` está definida, `SistemaTallerFactory` usa ese Postgres en vez de levantar un Testcontainer: crea una base con nombre único por corrida (por ejemplo `tests_<guid>`), aplica las migraciones y la borra al terminar. Así los tests corren igual en una máquina o en un agente sin Docker. En la CI la variable no se define y se usa Testcontainers, como en el resto de este documento.
 
 **Estas tres pruebas (listar, pedir por id, alta) se repiten para cada entidad nueva que implemente `IPerteneceATaller`** a medida que se agregan features en `plan_desarrollo.md` — no hace falta reinventar el fixture, solo instanciar el mismo patrón contra `Servicio`, `OrdenTrabajo`, `Producto`, `Venta`.
 

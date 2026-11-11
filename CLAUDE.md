@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Estado del repositorio
 
-Repo git activo. **Fase 0 de `docs/plan_desarrollo.md` terminada** (git + CI + Docker Compose + esqueletos de backend y frontend + tokens de color migrados). **Fase 1 en curso** en la rama `feature/fase-1-base-backend-login`: de lo que pide esa fase solo existen las entidades de `Data/Entidades/`. Todavía **no** hay `TallerDbContext`, ni `Data/Configuraciones/`, ni migraciones, ni `ITallerActual`, ni endpoints (`Features/` está vacío — `Program.cs` sigue siendo el "Hello World!" de la plantilla), ni proyecto de tests, ni pantalla de login (el frontend sigue mostrando la plantilla de Vite).
+Repo git activo; se trabaja directo sobre `main` (ver "Protocolo de trabajo autónomo", más abajo). **Fase 0 de `docs/plan_desarrollo.md` terminada** (git + CI + Docker Compose + esqueletos de backend y frontend + tokens de color migrados). **Fase 1 en curso**: de lo que pide esa fase solo existen las entidades de `Data/Entidades/`. Todavía **no** hay `TallerDbContext`, ni `Data/Configuraciones/`, ni migraciones, ni `ITallerActual`, ni endpoints (`Features/` está vacío — `Program.cs` sigue siendo el "Hello World!" de la plantilla), ni proyecto de tests, ni Vitest, ni pantalla de login (el frontend sigue mostrando la plantilla de Vite).
 
-Dos cosas rotas hoy, a arreglar antes de seguir:
-- El backend **no compila**: cinco entidades (`Servicio`, `OrdenTrabajo`, `OrdenTrabajoServicio`, `Producto`, `Venta`) implementan `IPerteneceATaller` sin el `using SistemaTaller.Api.Common;`.
-- La CI **fallaría** en `dotnet test` (no existe `SistemaTaller.Tests`) y en `npm test` (no hay script `test` ni Vitest instalado). Ambos se resuelven al crear la infraestructura de tests que la Fase 1 exige de todos modos.
+La CI (`.github/workflows/ci.yml`) corre en cada push a `main`: backend `restore` + `build`; frontend `npm ci` + `build` + `lint`. Los pasos de test **se saltean** mientras no existan `backend/SistemaTaller.Tests/` y el script `test` de `frontend/package.json` — crearlos es parte de la Fase 1, y desde ese momento la CI los corre sola, sin tocar el workflow.
+
+**`docs/bitacora.md`** tiene el registro de cada sesión (qué se hizo, qué se verificó, qué quedó pendiente o esperando decisión). Leer la última entrada antes de empezar.
 
 El idioma del proyecto es **español** — documentación, nombres de entidades, propiedades y rutas (`TallerId`, `patente`, `OrdenTrabajo`, `/api/vehiculos`) van en español, y el código nuevo debe seguir esa convención. Excepción deliberada: los **mensajes de commit van en inglés**, con prefijo (`feat`/`fix`/`docs`/`test`/`chore`).
 
@@ -44,6 +44,8 @@ dotnet test --filter FullyQualifiedName~Aislamiento  # solo la batería de talle
 dotnet test --filter "FullyQualifiedName~AislamientoTallerTests.ListarNoDevuelveDatosDeOtroTaller"
 ```
 
+Sin Docker: definir `TESTS_CONNECTION_STRING` apuntando a un Postgres disponible (por ejemplo `Host=localhost;Username=postgres;Password=devpassword`) y la factory de tests lo usa en vez de Testcontainers (ver `docs/testing.md`).
+
 Frontend — desde `frontend/`:
 
 ```bash
@@ -59,7 +61,7 @@ Prototipo visual: `python -m http.server --directory design` (Chrome no permite 
 
 | Archivo | Cuándo leerlo |
 |---|---|
-| `docs/plan_desarrollo.md` | **Empezar acá para escribir código**: fases verticales con checklist y checkpoint. Una rama por fase |
+| `docs/plan_desarrollo.md` | **Empezar acá para escribir código**: fases verticales con checklist y checkpoint |
 | `docs/description.md` | Visión general, filosofía, decisiones deliberadamente pendientes |
 | `docs/functional_requirements.md` | Requerimientos RF-01…RF-29 (referenciar por número al implementar) |
 | `docs/data_base.md` | Modelo lógico: entidades, campos, relaciones, catálogo sembrado |
@@ -70,7 +72,8 @@ Prototipo visual: `python -m http.server --directory design` (Chrome no permite 
 | `docs/design.md` | Dirección visual: tokens de color, tipografía, elementos propios |
 | `docs/mvp.md` | Corte MVP vs. futuro |
 | `docs/testing.md` | Qué se testea, con qué y cuándo — la batería de aislamiento por `taller_id` es prioridad máxima |
-| `docs/flujo_de_trabajo.md` | Git, GitHub y GitHub Actions: ramas, commits, PRs, CI |
+| `docs/flujo_de_trabajo.md` | Git, GitHub y GitHub Actions: commits y CI (el modo actual, directo a `main`, está en "Protocolo de trabajo autónomo" de este archivo) |
+| `docs/bitacora.md` | Qué se hizo y verificó en cada sesión — leer la última entrada al empezar |
 
 Al cambiar decisiones de producto o alcance, actualizar el documento correspondiente en la misma tanda — estos archivos son la fuente de verdad del proyecto, no notas históricas. Vale también para este `CLAUDE.md` y para los checklists de `plan_desarrollo.md`.
 
@@ -113,7 +116,7 @@ Convenciones que se rompen fácil (detalle en `docs/backend.md`):
 
 - Tailwind 4 se configura **en CSS, no en un `tailwind.config.js`**: `frontend/src/index.css` tiene el bloque `@theme inline` y los tokens en `:root` / `.dark`. Los tokens del prototipo ya están migrados ahí (`--primary` = azul de patente `#0A3FA8`, `--listo`, `--proceso`, `--destructive`, `--spacing-tap: 56px`, fuentes Archivo/Alegreya Sans). Cambiar la paleta = editar ese archivo, nada más.
 - shadcn/ui está inicializado con estilo `base-nova` sobre `@base-ui/react` (no Radix); alias `@/` → `src/`.
-- `src/{api,hooks,pages,styles}` existen vacíos, esperando la Fase 1. **`api/` debe poder alternar entre mocks y la API real sin tocar `pages/`**, servido a través de TanStack Query.
+- `src/{api,hooks,pages,styles}` existen vacíos en la copia local, esperando la Fase 1 (Git no versiona carpetas vacías: en un clon nuevo hay que crearlas). **`api/` debe poder alternar entre mocks y la API real sin tocar `pages/`**, servido a través de TanStack Query.
 - `design/prototipo.html` es la referencia visual (HTML/CSS plano, 7 pantallas, datos simulados). `design/prototipo-v1.html` es solo referencia de comparación, no fuente de verdad.
 
 ## Accesibilidad — restricciones duras de UI
@@ -128,9 +131,53 @@ El público son mecánicos, muchos de edad avanzada y usando el celular con las 
 - Confirmación antes de acciones destructivas.
 - Mobile-first: formularios de un paso a la vez en pantalla completa; en escritorio, modal.
 
-## Flujo de trabajo
+## Protocolo de trabajo autónomo (agente)
 
-Una rama por fase (`feature/fase-N-nombre`), commits chicos con prefijo en inglés, y al llegar al checkpoint de la fase: push, Pull Request a `main`, esperar el verde de GitHub Actions, "Squash and merge". Nunca se programa directo sobre `main`. Detalle en `docs/flujo_de_trabajo.md`.
+Decisión del dueño (2026-11-11): el proyecto lo avanza un agente sin supervisión directa, que **commitea y pushea directo a `main`**; el dueño revisa el producto y la bitácora. Esto reemplaza el flujo de rama por fase + Pull Request de `docs/flujo_de_trabajo.md` (queda documentado ahí como alternativa). Como la CI ya no actúa de barrera antes de `main`, la verificación de abajo es la que la reemplaza — no es opcional.
+
+### 1. Al empezar cada sesión
+
+- `git pull` sobre `main`. El repo se edita también desde Windows (`core.autocrlf=true`); si trabajás desde Linux sobre esa misma carpeta, pasá `-c core.autocrlf=true` a cada comando `git` para no ver todos los archivos como modificados.
+- Leer la última entrada de `docs/bitacora.md`, la sección "Estado del repositorio" y la fase en curso de `docs/plan_desarrollo.md` (la primera con casillas sin tildar).
+- Confirmar que la última corrida de CI en `main` está en verde: `gh run list --branch main --limit 1`. Si está en rojo, arreglar eso antes que cualquier otra cosa.
+
+### 2. Mientras se trabaja
+
+- Una fase a la vez y en orden; dentro de la fase, de a un ítem del checklist.
+- Commits chicos con prefijo en inglés (`feat`/`fix`/`docs`/`test`/`chore`). Nunca commitear secretos (`user-secrets`, `.env`, claves JWT reales).
+- Push a `main` después de cada bloque coherente que compile y pase los tests — no acumular horas de trabajo sin pushear. Cada push dispara la CI.
+- Después de cada push, seguir la corrida hasta que termine (`gh run watch`, o `gh run list --branch main --limit 1`). **Si la CI queda en rojo, lo siguiente es arreglarla**: no se suma trabajo nuevo sobre un `main` roto.
+- Nunca `git push --force` a `main`, ni reescribir historial ya pusheado.
+
+### 3. Definición de "terminado" (verificación obligatoria)
+
+Un ítem del checklist se tilda solo cuando se **comprobó ejecutándolo** que funciona — que compile no alcanza. Para cerrar una fase tiene que pasar todo esto, y quedar anotado en la bitácora con los comandos usados y su resultado:
+
+1. **Backend**: `dotnet build` sin errores y `dotnet test` en verde, incluida la batería de aislamiento por `taller_id` de las entidades de la fase.
+2. **Base de datos desde cero**: con Postgres vacío (`docker compose down -v && docker compose up -d`, o una base nueva si no hay Docker), `dotnet ef database update` aplica todas las migraciones sin errores y el seed queda cargado.
+3. **API levantada de verdad**: `dotnet run` y probar con `curl` los endpoints de la fase — login → token → cada endpoint nuevo con el token; un pedido sin token tiene que dar 401 y uno sobre un recurso de otro taller, 404.
+4. **Frontend**: `npm run lint`, `npm run build` y `npm test` en verde.
+5. **Recorrido en navegador**: con la API y `npm run dev` levantados, recorrer el checkpoint de la fase en un navegador real (Playwright headless sirve) a 390px de ancho (mobile) y a 1280px (escritorio). Guardar capturas en `docs/bitacora/fase-N/` y revisar en ellas las restricciones de la sección "Accesibilidad" de este archivo.
+6. **Revisión contra las reglas**: releer los RF de la fase, "Invariantes de arquitectura" y "Reglas de dominio fáciles de romper"; `grep -rn "IgnoreQueryFilters\|FromSqlRaw" backend/` no debe mostrar nada fuera de `POST /auth/login`.
+7. **CI en verde** en GitHub para el último commit de la fase.
+8. **Checkpoint** de la fase en `plan_desarrollo.md` cumplido tal como está escrito.
+
+Recién entonces: tildar las casillas en `plan_desarrollo.md`, actualizar "Estado del repositorio" en este archivo, escribir la entrada de la bitácora, commit `docs:` y push.
+
+Si un paso no se puede ejecutar en el entorno (por ejemplo, no hay Docker o no hay navegador), **no se da por pasado**: se usa la alternativa documentada (Postgres local + `TESTS_CONNECTION_STRING`, ver `docs/testing.md`) o se anota en la bitácora como **no verificado**, y la fase queda abierta.
+
+### 4. Cuándo parar y dejarle la decisión al dueño
+
+Agregar a la bitácora una sección **"Esperando decisión"** con la pregunta concreta, y no avanzar sobre ese punto, cuando:
+
+- Se llega a la **Fase 6** (Stock y Ventas): bloqueada hasta que el dueño hable con el dueño del taller sobre `Producto`/`Venta`. La Fase 5 sí se puede hacer antes.
+- Se llega a la **Fase 7**: elegir hosting, crear cuentas, gastar plata y cargar secretos de producción los decide el dueño.
+- Una tarea depende de algo de "Pendiente de definición", o los documentos se contradicen entre sí.
+- Haría falta algo irreversible o fuera del repositorio: reescribir historial, cambiar la configuración de GitHub, crear servicios externos o pagos.
+
+### 5. Bitácora (`docs/bitacora.md`)
+
+Una entrada por sesión, la más nueva arriba: fecha, fase, qué se hizo (commits), qué se verificó y cómo (comandos y resultado), qué quedó **no verificado** o pendiente, y lo que esté esperando decisión. Es lo que lee el dueño para seguir el avance: escribirla para alguien que no vio la sesión, en español.
 
 ## Pendiente de definición (no inventar)
 

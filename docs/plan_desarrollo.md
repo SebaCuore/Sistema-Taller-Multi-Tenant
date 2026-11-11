@@ -2,11 +2,11 @@
 
 Ordena la construcción de todo el proyecto — backend y frontend juntos — en fases chicas y verticales: cada fase deja una función completa funcionando de punta a punta (base de datos → API → pantalla), no "todo el frontend primero y después todo el backend". Así cada fase termina en algo que se puede probar de verdad, en vez de un pozo largo de integración al final.
 
-**Cómo usarlo:** una fase a la vez, en orden. Cada fase tiene su checklist (marcalo a medida que avanzás) y termina en un **checkpoint** — una acción concreta que si funciona, confirma que la fase está realmente terminada, no solo que el código compila. No pases a la fase siguiente sin pasar el checkpoint de la actual.
+**Cómo usarlo:** una fase a la vez, en orden. Cada fase tiene su checklist (marcalo a medida que avanzás) y termina en un **checkpoint** — una acción concreta que si funciona, confirma que la fase está realmente terminada, no solo que el código compila. No pases a la fase siguiente sin pasar el checkpoint de la actual. Qué hay que comprobar antes de tildar una casilla o cerrar una fase está en `CLAUDE.md` → "Protocolo de trabajo autónomo" → "Definición de terminado"; lo verificado queda registrado en `bitacora.md`.
 
 El orden no sigue estrictamente la numeración de `functional_requirements.md` ni de `screens.md` — sigue lo que depende de qué. Por ejemplo, el Catálogo de servicios (RF-09 a RF-13) va después de Órdenes de trabajo aunque esté numerado antes, porque `screens.md` ya lo marca como "pantalla de uso poco frecuente" y el catálogo por defecto sembrado en la Fase 1 alcanza para probar órdenes de trabajo sin necesitar esa pantalla todavía.
 
-Documentos a mano mientras se avanza: `backend.md` (cómo se escribe cada endpoint), `frontend.md` y `screens.md` (cómo se arma cada pantalla), `functional_requirements.md` (el detalle de cada RF citado acá), `testing.md` (qué testear en cada fase) y `flujo_de_trabajo.md` (una rama de Git por fase, Pull Request al llegar al checkpoint).
+Documentos a mano mientras se avanza: `backend.md` (cómo se escribe cada endpoint), `frontend.md` y `screens.md` (cómo se arma cada pantalla), `functional_requirements.md` (el detalle de cada RF citado acá), `testing.md` (qué testear en cada fase) y `flujo_de_trabajo.md` (Git, commits y CI).
 
 ---
 
@@ -14,11 +14,11 @@ Documentos a mano mientras se avanza: `backend.md` (cómo se escribe cada endpoi
 
 No es una "feature" todavía, es dejar los dos proyectos arrancando antes de escribir la primera línea de lógica.
 
-- [ ] Inicializar git y crear el repositorio en GitHub siguiendo `flujo_de_trabajo.md` (hoy no existe control de versiones — ver `CLAUDE.md`): `.gitignore` primero, primer commit con `docs/` y `design/`, push a GitHub.
-- [ ] Sumar el workflow de GitHub Actions (`.github/workflows/ci.yml`, ejemplo completo en `flujo_de_trabajo.md`) — todavía no tiene nada para compilar, pero queda listo para cuando en la Fase 1 aparezcan los primeros tests.
-- [ ] PostgreSQL corriendo en Docker: `docker compose up -d` desde la raíz del proyecto, usando el `docker-compose.yml` incluido (ver `backend.md` → "Cómo arrancar, paso a paso", y la guía de Docker adjunta al proyecto para quien no usó Docker antes). Se eligió Docker por sobre una instalación directa porque de todos modos hace falta para correr los tests de integración con Testcontainers desde la Fase 1 — instalarlo ahora evita repetir el paso, y además es más fácil de resetear si algo queda en un estado raro.
-- [ ] **Backend**: seguir `backend.md` → "Cómo arrancar, paso a paso", pasos 1 a 3 (crear el proyecto, agregar paquetes, configurar `user-secrets` con la cadena de conexión). Todavía sin entidades ni endpoints — el objetivo acá es solo `dotnet run` sirviendo la plantilla vacía sin errores.
-- [ ] **Frontend**: crear el proyecto real (todavía no existe — `design/prototipo.html` es solo la referencia visual):
+- [x] Inicializar git y crear el repositorio en GitHub siguiendo `flujo_de_trabajo.md`: `.gitignore` primero, primer commit con `docs/` y `design/`, push a GitHub.
+- [x] Sumar el workflow de GitHub Actions (`.github/workflows/ci.yml`, ejemplo completo en `flujo_de_trabajo.md`) — todavía no tiene nada para compilar, pero queda listo para cuando en la Fase 1 aparezcan los primeros tests.
+- [x] PostgreSQL corriendo en Docker: `docker compose up -d` desde la raíz del proyecto, usando el `docker-compose.yml` incluido (ver `backend.md` → "Cómo arrancar, paso a paso", y la guía de Docker adjunta al proyecto para quien no usó Docker antes). Se eligió Docker por sobre una instalación directa porque de todos modos hace falta para correr los tests de integración con Testcontainers desde la Fase 1 — instalarlo ahora evita repetir el paso, y además es más fácil de resetear si algo queda en un estado raro.
+- [x] **Backend**: seguir `backend.md` → "Cómo arrancar, paso a paso", pasos 1 a 3 (crear el proyecto, agregar paquetes, configurar `user-secrets` con la cadena de conexión). Todavía sin entidades ni endpoints — el objetivo acá es solo `dotnet run` sirviendo la plantilla vacía sin errores.
+- [x] **Frontend**: crear el proyecto real (todavía no existe — `design/prototipo.html` es solo la referencia visual):
 
   ```bash
   npm create vite@latest frontend -- --template react-ts
@@ -38,7 +38,7 @@ No es una "feature" todavía, es dejar los dos proyectos arrancando antes de esc
   ```
 
   Estructura de carpetas según `frontend.md`: `src/{components,pages,api,hooks,lib,styles}`.
-- [ ] Trasladar los tokens de color de `design/prototipo.html` (bloque `:root`) a la configuración de Tailwind, tal como indica `design.md`.
+- [x] Trasladar los tokens de color de `design/prototipo.html` (bloque `:root`) a la configuración de Tailwind, tal como indica `design.md`.
 
 **Checkpoint:** `dotnet run` (backend) y `npm run dev` (frontend) levantan cada uno sin errores, en pestañas/terminales separadas. Todavía no se hablan entre sí — eso empieza en la Fase 1.
 
@@ -49,7 +49,7 @@ No es una "feature" todavía, es dejar los dos proyectos arrancando antes de esc
 Sin esto no se puede probar nada más con datos reales: todo el resto de las fases necesita un `taller_id` autenticado.
 
 **Backend** (detalle completo en `backend.md`):
-- [ ] Las 9 entidades en `Data/Entidades/` (incluidos los enums).
+- [x] Las 9 entidades en `Data/Entidades/` (incluidos los enums).
 - [ ] `TallerDbContext` completo, con los `DbSet` y el filtro global por `taller_id`.
 - [ ] Una clase de configuración por entidad en `Data/Configuraciones/`.
 - [ ] Migración inicial con el seed de `Taller`, `TipoVehiculo` (Auto/Moto) y el catálogo por defecto de `Servicio` (`data_base.md`).
@@ -60,6 +60,8 @@ Sin esto no se puede probar nada más con datos reales: todo el resto de las fas
 **Testing (no se pasa a la Fase 2 sin esto — ver `testing.md`):**
 - [ ] `SistemaTallerFactory` (`WebApplicationFactory` + `Testcontainers.PostgreSql`) — la pieza de infraestructura de test que reutiliza el resto del proyecto.
 - [ ] Las tres pruebas de aislamiento por `taller_id`: listar no filtra datos de otro taller, pedir por id un recurso de otro taller da 404, un `TallerId` mandado a mano en el body de un alta se ignora.
+- [ ] La factory acepta `TESTS_CONNECTION_STRING` para correr sin Docker (ver `testing.md`).
+- [ ] Frontend: Vitest + React Testing Library instalados, con script `"test": "vitest"` en `package.json` (la CI lo empieza a correr sola en cuanto existe).
 
 **Frontend:**
 - [ ] Pantalla 0 (Login) de `screens.md`, conectada de verdad a `POST /auth/login` — sin mocks acá, es la primera pantalla que tiene sentido contra la API real.

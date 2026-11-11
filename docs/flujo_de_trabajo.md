@@ -1,8 +1,10 @@
 # Flujo de trabajo con Git y GitHub
 
+> **Modo actual (desde 2026-11-11):** el proyecto lo avanza un agente que commitea y pushea **directo a `main`**; la CI corre en cada push y el agente la sigue hasta que termina, y arregla cualquier rojo antes de seguir. Reglas completas en `CLAUDE.md` → "Protocolo de trabajo autónomo". Las secciones 2 y 5 (una rama por fase y Pull Requests) describen el flujo anterior, para volver a él si en algún momento se quiere revisar cada cambio antes de que entre a `main`.
+
 Explica cómo usar Git y GitHub para que el desarrollo quede ordenado y sea fácil de retomar — pensado para un desarrollador solo, sin equipo, sin ceremonia de más. "Crear un repo y subir todo" funciona para guardar una copia, pero no da ninguna de estas tres cosas que sí importan acá: un historial que se pueda leer y volver atrás con sentido, una red de seguridad que avise si algo se rompió antes de que lo notes vos, y una forma de nunca subir una contraseña o clave por accidente. Con un rato de setup al principio, las tres vienen solas.
 
-## 1. Inicializar el repositorio (hoy no existe — ver `CLAUDE.md`)
+## 1. Inicializar el repositorio (ya hecho — queda como referencia)
 
 Antes de tocar Git hay dos archivos que todavía no existen en la carpeta del proyecto y conviene crear primero: el `.gitignore` y un `README.md` mínimo. Si no, terminás versionando `bin/`, `obj/` o `node_modules/` por error (cuesta sacarlos del historial después), y el repo en GitHub queda sin ninguna explicación de qué es.
 
@@ -160,7 +162,14 @@ jobs:
           dotnet-version: '10.0.x'
       - run: dotnet restore
       - run: dotnet build --no-restore
-      - run: dotnet test --no-build
+      # Corre los tests solo si ya existe el proyecto backend/SistemaTaller.Tests (se crea en la Fase 1).
+      - name: dotnet test
+        run: |
+          if ls ../SistemaTaller.Tests/*.csproj >/dev/null 2>&1; then
+            dotnet test ../SistemaTaller.Tests
+          else
+            echo "::warning::Todavia no existe backend/SistemaTaller.Tests - se saltean los tests de backend"
+          fi
 
   frontend:
     runs-on: ubuntu-latest
@@ -176,10 +185,12 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
-      - run: npm test -- --run
+      - run: npm run lint
+      # --if-present: no falla mientras no exista el script "test" (Vitest se suma en la Fase 1).
+      - run: npm run test --if-present -- --run
 ```
 
-Los dos jobs (`backend` y `frontend`) corren en paralelo, cada uno en su propia máquina virtual descartable. `dotnet test` en este punto va a incluir los tests de integración de `testing.md` — como corren contra Testcontainers (que necesita Docker), el runner de GitHub Actions ya lo trae instalado de fábrica, no hace falta configurar nada extra para eso.
+Los pasos de test se saltean solos mientras no existan el proyecto `backend/SistemaTaller.Tests` y el script `test` del frontend (ambos llegan en la Fase 1); cuando existen, se corren sin tocar este archivo. Los dos jobs (`backend` y `frontend`) corren en paralelo, cada uno en su propia máquina virtual descartable. `dotnet test` en este punto va a incluir los tests de integración de `testing.md` — como corren contra Testcontainers (que necesita Docker), el runner de GitHub Actions ya lo trae instalado de fábrica, no hace falta configurar nada extra para eso.
 
 Con esto commiteado y pusheado una vez a `main`, todo Pull Request nuevo ya lo dispara solo — no hay que volver a tocarlo salvo que cambie algo de la estructura de carpetas.
 
