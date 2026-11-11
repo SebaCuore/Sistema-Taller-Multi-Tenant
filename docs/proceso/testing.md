@@ -105,6 +105,8 @@ Pareja natural de Vite. Test de componente para lo que tiene lógica interactiva
 
 Playwright ya está listo para usarse sin instalación adicional. E2E rinde cuando hay una app real para clickear, así que no tiene sentido antes de tener algo andando — el primero se escribe apenas se cumple el checkpoint de la Fase 3 de [`plan_desarrollo.md`](plan_desarrollo.md) (login → alta de vehículo → orden con servicios → finalizar), porque ese es exactamente el flujo que más le costaría a un cambio futuro romper sin que nadie se dé cuenta. Un solo test E2E bien elegido vale más que diez sueltos — no hace falta cubrir cada pantalla con E2E, para eso están los tests de integración y de componente.
 
+**Cómo correrlo hoy** (`frontend/e2e/flujo-taller.spec.ts`): con Postgres (`docker compose up -d`), la API (`dotnet run`) y un admin creado con `crear-admin` (credenciales en `E2E_EMAIL` / `E2E_PASSWORD`, por defecto `admin@ejemplo.com` / `clave-de-prueba-1`), desde `frontend/`: `npm run test:e2e`. Playwright levanta Vite solo. Con `PLAYWRIGHT_CHROMIUM_PATH` se usa un Chromium ya instalado. **No corre en la CI** (le faltaría una API con base de datos); sumarlo a la CI es una mejora pendiente.
+
 ## Herramientas — resumen
 
 | Capa | Herramienta | Cuándo se escribe |

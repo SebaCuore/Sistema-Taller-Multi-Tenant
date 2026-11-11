@@ -101,22 +101,23 @@ El corazón del sistema. Usa el catálogo de servicios ya sembrado en la Fase 1 
 **Prerrequisito:** Fase 2 terminada (una orden siempre cuelga de un vehículo).
 
 **Backend:**
-- [ ] `GET /api/ordenes` (listado de activas, con filtro por estado — RF-14).
-- [ ] `POST /api/ordenes` (alta de orden con uno o varios servicios, posición/lado donde aplique — RF-15 a RF-17).
-- [ ] `GET /api/ordenes/{id}` (detalle).
-- [ ] `POST /api/ordenes/{id}/servicios` y `DELETE /api/ordenes/{id}/servicios/{itemId}` (agregar/quitar servicio en curso — RF-19).
-- [ ] `PATCH /api/ordenes/{id}/estado` (cambio de estado, opcional saltear intermedios — RF-20).
-- [ ] `POST /api/ordenes/{id}/finalizar` (cierre, pasa a historial — RF-21).
+- [x] `GET /api/servicios` (solo lectura, para el selector; el resto del catálogo es la Fase 5).
+- [x] `GET /api/ordenes` (listado de activas, con filtro por estado — RF-14).
+- [x] `POST /api/ordenes` (alta de orden con uno o varios servicios, posición/lado donde aplique — RF-15 a RF-17).
+- [x] `GET /api/ordenes/{id}` (detalle).
+- [x] `POST /api/ordenes/{id}/servicios` y `DELETE /api/ordenes/{id}/servicios/{itemId}` (agregar/quitar servicio en curso — RF-19).
+- [x] `PATCH /api/ordenes/{id}/estado` (cambio de estado, opcional saltear intermedios — RF-20).
+- [x] `POST /api/ordenes/{id}/finalizar` (cierre, pasa a historial — RF-21).
 
 **Frontend:**
-- [ ] Pantalla 1 (Taller) — tablero con filtro por estado.
-- [ ] Pantalla 2, paso 2 (elegir servicios al dar de alta la orden).
-- [ ] Pantalla 3 (Detalle de orden en curso) — agregar/quitar servicio con confirmación antes de quitar (acción destructiva), cambio de estado, finalizar.
+- [x] Pantalla 1 (Taller) — tablero con filtro por estado.
+- [x] Pantalla 2, paso 2 (elegir servicios al dar de alta la orden).
+- [x] Pantalla 3 (Detalle de orden en curso) — agregar/quitar servicio con confirmación antes de quitar (acción destructiva), cambio de estado, finalizar.
 
 **Testing:**
-- [ ] Batería de aislamiento para `OrdenTrabajo` y `OrdenTrabajoServicio` (esta última tiene `taller_id` propio — ver el fix en [`base_de_datos.md`](../tecnica/base_de_datos.md) — vale la pena un test que confirme específicamente que se completa solo).
-- [ ] Test de componente (Vitest + RTL) de la confirmación antes de quitar un servicio.
-- [ ] El primer test end-to-end (Playwright) del proyecto: login → alta de vehículo → orden con dos servicios → finalizar. Es el mismo flujo del checkpoint de abajo, ya escrito como test permanente.
+- [x] Batería de aislamiento para `OrdenTrabajo` y `OrdenTrabajoServicio` (esta última tiene `taller_id` propio — ver el fix en [`base_de_datos.md`](../tecnica/base_de_datos.md) — vale la pena un test que confirme específicamente que se completa solo).
+- [x] Test de componente (Vitest + RTL) de la confirmación antes de quitar un servicio.
+- [x] El primer test end-to-end (Playwright, `frontend/e2e/`, `npm run test:e2e`; necesita API y base levantadas, no corre en la CI) del proyecto: login → alta de vehículo → orden con dos servicios → finalizar. Es el mismo flujo del checkpoint de abajo, ya escrito como test permanente.
 
 **Checkpoint:** flujo completo desde el frontend — alta de vehículo → orden con dos servicios → marcar "listo para retirar" → finalizar — y que la orden desaparezca del tablero de "Taller".
 

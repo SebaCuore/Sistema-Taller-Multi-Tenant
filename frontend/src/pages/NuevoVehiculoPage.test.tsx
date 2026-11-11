@@ -17,6 +17,9 @@ const api = vi.hoisted(() => ({
   editar: vi.fn(),
 }))
 vi.mock('@/api/vehiculos', () => ({ api }))
+vi.mock('@/api/ordenes', () => ({
+  apiOrdenes: { servicios: vi.fn().mockResolvedValue([]), crear: vi.fn() },
+}))
 
 import NuevoVehiculoPage from './NuevoVehiculoPage'
 
@@ -81,7 +84,7 @@ describe('NuevoVehiculoPage — patente conocida (RF-07)', () => {
     expect((screen.getByLabelText('Nombre del dueño') as HTMLInputElement).value).toBe('Juan Pérez')
     await u.click(screen.getByRole('button', { name: 'Guardar vehículo' }))
 
-    expect(await screen.findByText('Vehículo guardado')).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Servicios' })).toBeTruthy() // pasa al paso 2
     expect(api.crear.mock.calls[0][0]).toMatchObject({ patente: 'ABC123', contactoNombre: 'Juan Pérez' })
   })
 
@@ -94,7 +97,7 @@ describe('NuevoVehiculoPage — patente conocida (RF-07)', () => {
     expect((screen.getByLabelText('Nombre del dueño') as HTMLInputElement).value).toBe('')
     await u.click(screen.getByRole('button', { name: 'Guardar vehículo' }))
 
-    expect(await screen.findByText('Vehículo guardado')).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Servicios' })).toBeTruthy() // pasa al paso 2
     expect(api.crear.mock.calls[0][0].contactoNombre).toBeUndefined()
   })
 

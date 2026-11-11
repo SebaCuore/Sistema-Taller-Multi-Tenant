@@ -34,3 +34,86 @@ export interface ApiVehiculos {
   crear(entrada: VehiculoEntrada): Promise<Vehiculo>
   editar(id: string, entrada: VehiculoEntrada): Promise<Vehiculo>
 }
+
+// ---- Órdenes de trabajo (Fase 3) ----
+
+export type EstadoOrden = 'Ingresado' | 'EnProceso' | 'ListoParaRetirar' | 'Entregado'
+export type Posicion = 'Delantero' | 'Trasero'
+export type Lado = 'Izquierda' | 'Derecha'
+
+export interface Servicio {
+  id: string
+  nombre: string
+  categoriaVehiculo: 'Auto' | 'Moto' | 'Ambos'
+  aplicaPosicion: boolean
+  aplicaLado: boolean
+  precioReferencia: number | null
+  activo: boolean
+}
+
+export interface ItemEntrada {
+  servicioId: string
+  posicion?: Posicion
+  lado?: Lado
+  precioFinal?: number
+}
+
+export interface OrdenAlta {
+  vehiculoId: string
+  notas?: string
+  servicios: ItemEntrada[]
+}
+
+export interface OrdenResumen {
+  id: string
+  vehiculoId: string
+  patente: string
+  tipo: string
+  marca: string | null
+  modelo: string | null
+  estado: EstadoOrden
+  fechaIngreso: string
+  cantidadServicios: number
+  total: number
+}
+
+export interface ItemOrden {
+  id: string
+  servicioId: string
+  servicio: string
+  posicion: Posicion | null
+  lado: Lado | null
+  precioFinal: number
+  notas: string | null
+}
+
+export interface OrdenDetalle {
+  id: string
+  vehiculoId: string
+  patente: string
+  tipo: string
+  marca: string | null
+  modelo: string | null
+  contactoNombre: string | null
+  contactoTelefono: string | null
+  estado: EstadoOrden
+  fechaIngreso: string
+  fechaEntrega: string | null
+  notas: string | null
+  total: number
+  servicios: ItemOrden[]
+}
+
+/** Contrato de la API de órdenes y catálogo: lo cumplen la implementación real y el mock. */
+export interface ApiOrdenes {
+  servicios(): Promise<Servicio[]>
+  /** Sin estado: las órdenes en curso (todas menos Entregado). */
+  listar(estado?: EstadoOrden): Promise<OrdenResumen[]>
+  obtener(id: string): Promise<OrdenDetalle>
+  crear(alta: OrdenAlta): Promise<OrdenDetalle>
+  agregarServicio(id: string, item: ItemEntrada): Promise<OrdenDetalle>
+  quitarServicio(id: string, itemId: string): Promise<OrdenDetalle>
+  /** Solo estados en curso; para entregar se usa finalizar(). */
+  cambiarEstado(id: string, estado: Exclude<EstadoOrden, 'Entregado'>): Promise<OrdenDetalle>
+  finalizar(id: string): Promise<OrdenDetalle>
+}

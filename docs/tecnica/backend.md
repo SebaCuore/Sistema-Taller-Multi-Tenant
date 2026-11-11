@@ -571,6 +571,8 @@ public static class AuthEndpoints
 public record LoginRequest(string Email, string Password);
 ```
 
+**`MapInboundClaims = false`:** `AddJwtBearer` debe llevar `options.MapInboundClaims = false`; si no, el claim `sub` se renombra y `User.FindFirst("sub")` devuelve `null` (lo detectaron los tests de órdenes, que guardan el `UsuarioId`). Además, los enums se serializan como texto en JSON (`JsonStringEnumConverter` global en `Program.cs`).
+
 **Nota importante sobre `IgnoreQueryFilters()` acá:** es una de las pocas excepciones legítimas mencionadas antes — en el momento del login todavía no se conoce el `taller_id` (es lo que el login tiene que averiguar), así que no hay forma de que el filtro global lo tuviera de todos modos. En todo el resto de la aplicación, después de autenticado, no debería volver a aparecer.
 
 - El resto de los endpoints llevan `.RequireAuthorization()` en su `MapGroup`. RF-04 queda cumplido automáticamente por el filtro global de EF Core, siempre que el claim `taller_id` esté en el token — por eso es tan importante que el login lo incluya siempre.

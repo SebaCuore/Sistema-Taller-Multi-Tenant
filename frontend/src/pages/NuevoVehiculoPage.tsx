@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { apiOrdenes } from '@/api/ordenes'
 import { api } from '@/api/vehiculos'
 import type { Vehiculo } from '@/api/tipos'
+import SelectorServicios from '@/components/SelectorServicios'
 import { Button } from '@/components/ui/button'
 import { CLASE_CAMPO } from '@/lib/estilos'
 import { normalizarPatente } from '@/lib/patente'
+import { aItemEntrada, precioValido, serviciosParaVehiculo, type Seleccion } from '@/lib/seleccion'
 import { obtenerToken } from '@/lib/sesion'
 
 // Decisión del usuario ante el aviso de patente conocida (RF-07).
@@ -76,36 +79,7 @@ export default function NuevoVehiculoPage() {
     }
   }
 
-  function cargarOtro() {
-    setGuardado(null)
-    setPatente('')
-    setPatenteConsultada('')
-    setMarca('')
-    setModelo('')
-    setAnio('')
-    setContactoNombre('')
-    setContactoTelefono('')
-    setDecision('pendiente')
-    crear.reset()
-  }
-
-  if (guardado) {
-    return (
-      <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col justify-center gap-6 px-4 py-8">
-        <h1 className="font-heading text-3xl font-bold">Vehículo guardado</h1>
-        <p role="status" className="text-lg">
-          {guardado.patente} · {guardado.tipo}
-          {guardado.contactoNombre ? ` · ${guardado.contactoNombre}` : ''}
-        </p>
-        <Button className="h-14 w-full text-lg" onClick={cargarOtro}>
-          Cargar otro vehículo
-        </Button>
-        <Link to="/" className="flex h-14 items-center justify-center rounded-lg border border-border text-lg font-medium">
-          Volver al taller
-        </Link>
-      </main>
-    )
-  }
+  if (guardado) return <PasoServicios vehiculo={guardado} />
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col gap-6 px-4 py-8">
@@ -219,6 +193,59 @@ export default function NuevoVehiculoPage() {
           Cancelar
         </Link>
       </form>
+    </main>
+  )
+}
+
+/** Paso 2 de la Pantalla 2: elegir los servicios y crear la orden del vehículo recién guardado. */
+function PasoServicios({ vehiculo }: { vehiculo: Vehiculo }) {
+  const navegar = useNavigate()
+  const [seleccion, setSeleccion] = useState<Seleccion[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const catalogo = useQuery({ queryKey: ['servicios'], queryFn: apiOrdenes.servicios })
+  const crear = useMutation({ mutationFn: apiOrdenes.crear })
+
+  async function crearOrden() {
+    setError(null)
+    if (seleccion.length === 0) return setError('Elegí al menos un servicio.')
+    if (seleccion.some((s) => !precioValido(s.precio))) return setError('Revisá los precios: solo números.')
+    try {
+      await crear.mutateAsync({
+        vehiculoId: vehiculo.id,
+        servicios: seleccion.map((s) => aItemEntrada({ ...s, precio: s.precio.replace(',', '.') })),
+      })
+      navegar('/')
+    } catch {
+      setError('No se pudo crear la orden. Probá de nuevo.')
+    }
+  }
+
+  return (
+    <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col gap-6 px-4 py-8">
+      <h1 className="font-heading text-3xl font-bold">Servicios</h1>
+      <p role="status" className="text-lg">
+        {vehiculo.patente} · {vehiculo.tipo}. Elegí uno o varios servicios. El precio viene sugerido y lo podés cambiar.
+      </p>
+      {catalogo.isPending ? (
+        <p className="text-lg">Cargando servicios…</p>
+      ) : (
+        <SelectorServicios
+          servicios={serviciosParaVehiculo(catalogo.data ?? [], vehiculo.tipo)}
+          valor={seleccion}
+          onChange={setSeleccion}
+        />
+      )}
+      {error && (
+        <p role="alert" className="text-lg font-medium text-destructive">
+          {error}
+        </p>
+      )}
+      <Button className="h-14 w-full text-lg" disabled={crear.isPending} onClick={crearOrden}>
+        {crear.isPending ? 'Creando…' : 'Crear orden'}
+      </Button>
+      <Link to="/" className="flex h-14 items-center justify-center rounded-lg border border-border text-lg font-medium">
+        Dejar para después
+      </Link>
     </main>
   )
 }
