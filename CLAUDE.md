@@ -160,7 +160,7 @@ Un ítem del checklist se tilda solo cuando se **comprobó ejecutándolo** que f
 1. **Backend**: `dotnet build` sin errores y `dotnet test` en verde, incluida la batería de aislamiento por `taller_id` de las entidades de la fase.
 2. **Base de datos desde cero**: con Postgres vacío (`docker compose down -v && docker compose up -d`, o una base nueva si no hay Docker), `dotnet ef database update` aplica todas las migraciones sin errores y el seed queda cargado.
 3. **API levantada de verdad**: `dotnet run` y probar con `curl` los endpoints de la fase — login → token → cada endpoint nuevo con el token; un pedido sin token tiene que dar 401 y uno sobre un recurso de otro taller, 404.
-4. **Frontend**: `npm run lint`, `npm run build` y `npm test` en verde.
+4. **Frontend**: `npm run lint`, `npm run build` y `npm test` en verde; desde la Fase 3, también `npm run test:e2e` con la API y la base levantadas (el E2E **no** corre en la CI a propósito — ver `docs/proceso/testing.md`).
 5. **Recorrido en navegador**: con la API y `npm run dev` levantados, recorrer el checkpoint de la fase en un navegador real (Playwright headless sirve) a 390px de ancho (mobile) y a 1280px (escritorio). Guardar capturas en `docs/bitacora/capturas/fase-N/` y revisar en ellas las restricciones de la sección "Accesibilidad" de este archivo.
 6. **Revisión contra las reglas**: releer los RF de la fase, "Invariantes de arquitectura" y "Reglas de dominio fáciles de romper"; `grep -rn "IgnoreQueryFilters\|FromSqlRaw" backend/` no debe mostrar nada fuera de `POST /auth/login`.
 7. **CI en verde** en GitHub para el último commit de la fase.
