@@ -21,6 +21,7 @@ const api = vi.hoisted(() => ({
   quitarServicio: vi.fn(),
   agregarServicio: vi.fn(),
   cambiarEstado: vi.fn(),
+  cambiarPrecio: vi.fn(),
   finalizar: vi.fn(),
 }))
 vi.mock('@/api/ordenes', () => ({ apiOrdenes: api }))
@@ -75,14 +76,62 @@ describe('OrdenDetallePage', () => {
     expect(api.quitarServicio).not.toHaveBeenCalled()
   })
 
-  it('finaliza directo desde Ingresado, sin error ni pasos intermedios (RF-20)', async () => {
+  it('finalizar pide confirmación: sin confirmar no se llama a la API', async () => {
     montar()
     const u = userEvent.setup()
     await u.click(await screen.findByRole('button', { name: 'Finalizar' }))
 
+    expect(await screen.findByText('¿Finalizar la orden de ABC123?')).toBeTruthy()
+    expect(screen.getByText('La orden pasa al historial y ya no se va a poder modificar.')).toBeTruthy()
+    expect(api.finalizar).not.toHaveBeenCalled()
+  })
+
+  it('"No, volver" deja la orden como estaba', async () => {
+    montar()
+    const u = userEvent.setup()
+    await u.click(await screen.findByRole('button', { name: 'Finalizar' }))
+    await u.click(screen.getByRole('button', { name: 'No, volver' }))
+
+    expect(screen.queryByRole('alertdialog')).toBeNull()
+    expect(api.finalizar).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: 'Finalizar' })).toBeTruthy()
+  })
+
+  it('"Sí, finalizar" finaliza directo desde Ingresado, sin estados intermedios (RF-20)', async () => {
+    montar()
+    const u = userEvent.setup()
+    await u.click(await screen.findByRole('button', { name: 'Finalizar' }))
+    await u.click(screen.getByRole('button', { name: 'Sí, finalizar' }))
+
     await vi.waitFor(() => expect(api.finalizar).toHaveBeenCalledWith('o1'))
     expect(api.cambiarEstado).not.toHaveBeenCalled()
     expect(await screen.findByText('Tablero')).toBeTruthy()
+  })
+
+  it('cambia el precio de un servicio ya cargado con un botón visible', async () => {
+    api.cambiarPrecio.mockResolvedValue({ ...orden, total: 45000 })
+    montar()
+    const u = userEvent.setup()
+    await u.click(await screen.findByRole('button', { name: 'Cambiar precio de Alineación' }))
+    const campo = screen.getByLabelText('Nuevo precio de Alineación ($)')
+    await u.clear(campo)
+    await u.type(campo, '27000')
+    await u.click(screen.getByRole('button', { name: 'Guardar precio' }))
+
+    await vi.waitFor(() => expect(api.cambiarPrecio).toHaveBeenCalledWith('o1', 'i2', 27000))
+  })
+
+  it('un precio inválido no llama a la API', async () => {
+    montar()
+    const u = userEvent.setup()
+    await u.click(await screen.findByRole('button', { name: 'Cambiar precio de Alineación' }))
+    const campo = screen.getByLabelText('Nuevo precio de Alineación ($)')
+    await u.clear(campo)
+    await u.type(campo, 'abc')
+    await u.click(screen.getByRole('button', { name: 'Guardar precio' }))
+
+    expect((await screen.findByRole('alert')).textContent).toContain('precio válido')
+    expect(api.cambiarPrecio).not.toHaveBeenCalled()
   })
 
   it('una orden entregada es de solo lectura: sin Quitar ni Finalizar', async () => {
@@ -92,5 +141,6 @@ describe('OrdenDetallePage', () => {
     await screen.findByText(/Ya no se puede modificar/)
     expect(screen.queryByRole('button', { name: 'Finalizar' })).toBeNull()
     expect(screen.queryByRole('button', { name: /^Quitar/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: /^Cambiar precio/ })).toBeNull()
   })
 })

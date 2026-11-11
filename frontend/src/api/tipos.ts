@@ -113,6 +113,8 @@ export interface ApiOrdenes {
   crear(alta: OrdenAlta): Promise<OrdenDetalle>
   agregarServicio(id: string, item: ItemEntrada): Promise<OrdenDetalle>
   quitarServicio(id: string, itemId: string): Promise<OrdenDetalle>
+  /** Mientras la orden esté en curso (RF-18). */
+  cambiarPrecio(id: string, itemId: string, precioFinal: number): Promise<OrdenDetalle>
   /** Solo estados en curso; para entregar se usa finalizar(). */
   cambiarEstado(id: string, estado: Exclude<EstadoOrden, 'Entregado'>): Promise<OrdenDetalle>
   finalizar(id: string): Promise<OrdenDetalle>

@@ -5,6 +5,7 @@ import { apiOrdenes } from '@/api/ordenes'
 import type { EstadoOrden, ItemOrden } from '@/api/tipos'
 import SelectorServicios from '@/components/SelectorServicios'
 import { Button } from '@/components/ui/button'
+import { CLASE_CAMPO } from '@/lib/estilos'
 import { CLASE_ESTADO, ETIQUETA_ESTADO } from '@/lib/estados'
 import { aItemEntrada, precioValido, serviciosParaVehiculo, type Seleccion } from '@/lib/seleccion'
 import { obtenerToken } from '@/lib/sesion'
@@ -22,6 +23,8 @@ export default function OrdenDetallePage() {
   const navegar = useNavigate()
   const cliente = useQueryClient()
   const [aQuitar, setAQuitar] = useState<ItemOrden | null>(null)
+  const [finalizando, setFinalizando] = useState(false)
+  const [editando, setEditando] = useState<{ id: string; precio: string } | null>(null)
   const [agregando, setAgregando] = useState(false)
   const [seleccion, setSeleccion] = useState<Seleccion[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -56,6 +59,13 @@ export default function OrdenDetallePage() {
   const o = orden.data
   const cerrada = o.estado === 'Entregado'
   const disponibles = serviciosParaVehiculo(catalogo.data ?? [], o.tipo)
+
+  async function guardarPrecio(i: ItemOrden) {
+    if (!editando || editando.precio.trim() === '' || !precioValido(editando.precio))
+      return setError('Escribí un precio válido: solo números.')
+    await ejecutar(() => apiOrdenes.cambiarPrecio(id, i.id, Number(editando.precio.replace(',', '.'))))
+    setEditando(null)
+  }
 
   async function agregar() {
     if (seleccion.some((s) => !precioValido(s.precio))) return setError('Revisá los precios: solo números.')
@@ -98,15 +108,44 @@ export default function OrdenDetallePage() {
                 <span className="font-medium">{descripcion(i)}</span>
                 <span className="font-bold">{pesos(i.precioFinal)}</span>
               </div>
-              {!cerrada && (
-                <Button
-                  variant="outline"
-                  className="h-14 w-full text-lg"
-                  aria-label={`Quitar ${descripcion(i)}`}
-                  onClick={() => setAQuitar(i)}
-                >
-                  Quitar
-                </Button>
+              {!cerrada && editando?.id === i.id && (
+                <div className="flex flex-col gap-3">
+                  <label className="flex flex-col gap-2 text-lg font-medium">
+                    Nuevo precio de {i.servicio} ($)
+                    <input
+                      value={editando.precio}
+                      onChange={(e) => setEditando({ id: i.id, precio: e.target.value })}
+                      inputMode="decimal"
+                      className={CLASE_CAMPO}
+                    />
+                  </label>
+                  <Button className="h-14 w-full text-lg" disabled={accion.isPending} onClick={() => guardarPrecio(i)}>
+                    Guardar precio
+                  </Button>
+                  <Button variant="outline" className="h-14 w-full text-lg" onClick={() => setEditando(null)}>
+                    Cancelar
+                  </Button>
+                </div>
+              )}
+              {!cerrada && editando?.id !== i.id && (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <Button
+                    variant="outline"
+                    className="h-14 w-full text-lg"
+                    aria-label={`Cambiar precio de ${descripcion(i)}`}
+                    onClick={() => setEditando({ id: i.id, precio: String(i.precioFinal) })}
+                  >
+                    Cambiar precio
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-14 w-full text-lg"
+                    aria-label={`Quitar ${descripcion(i)}`}
+                    onClick={() => setAQuitar(i)}
+                  >
+                    Quitar
+                  </Button>
+                </div>
               )}
             </li>
           ))}
@@ -167,12 +206,29 @@ export default function OrdenDetallePage() {
               </Button>
             ))}
           </div>
-          <Button className="h-14 w-full text-lg font-bold" disabled={accion.isPending} onClick={async () => {
-              await ejecutar(() => apiOrdenes.finalizar(id))
-              navegar('/') // la orden sale del tablero y queda en el historial
-            }}>
-            Finalizar
-          </Button>
+{!finalizando ? (
+            <Button className="h-14 w-full text-lg font-bold" disabled={accion.isPending} onClick={() => setFinalizando(true)}>
+              Finalizar
+            </Button>
+          ) : (
+            <div role="alertdialog" aria-labelledby="titulo-finalizar" className="flex flex-col gap-3 rounded-lg border-2 border-primary p-4">
+              <h3 id="titulo-finalizar" className="font-heading text-xl font-bold">¿Finalizar la orden de {o.patente}?</h3>
+              <p className="text-lg">La orden pasa al historial y ya no se va a poder modificar.</p>
+              <Button
+                className="h-14 w-full text-lg font-bold"
+                disabled={accion.isPending}
+                onClick={async () => {
+                  await ejecutar(() => apiOrdenes.finalizar(id))
+                  navegar('/') // la orden sale del tablero y queda en el historial
+                }}
+              >
+                Sí, finalizar
+              </Button>
+              <Button variant="outline" className="h-14 w-full text-lg" onClick={() => setFinalizando(false)}>
+                No, volver
+              </Button>
+            </div>
+          )}
         </section>
       )}
 

@@ -12,6 +12,7 @@ La más nueva arriba.
 
 | Fecha | Fase | Sesión |
 |---|---|---|
+| 2026-11-11 | 3 cerrada de nuevo | [Ajustes del dueño en la Fase 3: confirmar al finalizar y precio editable](2026-11-11-ajustes-fase-3.md) |
 | 2026-11-11 | 3 reabierta | [Decisiones del dueño tras probar la Fase 3](2026-11-11-decisiones-del-dueno-fase-3.md) |
 | 2026-11-11 | 3 cerrada | [Órdenes de trabajo: API, tablero, detalle y primer E2E](2026-11-11-ordenes-de-trabajo.md) |
 | 2026-11-11 | 2 cerrada | [Vehículos: API, aislamiento HTTP y pantalla Nuevo vehículo](2026-11-11-vehiculos.md) |

@@ -37,11 +37,21 @@ test('flujo completo del taller', async ({ page }) => {
 
   // Detalle: total = 18.000 (referencia de Balanceo) + 9.000 (editado a mano)
   await expect(page.getByText('Total $ 27.000')).toBeVisible()
+  // Cambiar el precio de un servicio ya cargado (RF-18): Rotación pasa de 9.000 a 10.000
+  await page.getByRole('button', { name: /^Cambiar precio de Rotación/ }).click()
+  await page.getByLabel('Nuevo precio de Rotación ($)').fill('10000')
+  await page.getByRole('button', { name: 'Guardar precio' }).click()
+  await expect(page.getByText('Total $ 28.000')).toBeVisible()
   await page.getByRole('button', { name: 'Pasar a Listo para retirar' }).click()
   await expect(page.getByText('Listo para retirar').first()).toBeVisible()
 
-  // Finalizar: vuelve al tablero y la orden ya no está
+  // Finalizar siempre pide confirmación (RF-21): primero "No, volver", después "Sí, finalizar"
   await page.getByRole('button', { name: 'Finalizar' }).click()
+  await expect(page.getByText(`¿Finalizar la orden de ${patente}?`)).toBeVisible()
+  await page.getByRole('button', { name: 'No, volver' }).click()
+  await expect(page.getByRole('button', { name: 'Finalizar' })).toBeVisible()
+  await page.getByRole('button', { name: 'Finalizar' }).click()
+  await page.getByRole('button', { name: 'Sí, finalizar' }).click()
   await expect(page.getByRole('link', { name: '+ Nuevo vehículo' })).toBeVisible()
   await expect(page.getByRole('link', { name: new RegExp(patente) })).toHaveCount(0)
 })

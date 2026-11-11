@@ -12,4 +12,4 @@ El dueño probó el sistema en su PC ("básico, pero funciona bien") y decidió:
 
 **Verificado:** `python scripts/verificar_docs.py`. No hubo cambios de código en esta sesión.
 
-**Pendiente:** implementar los dos ajustes (próxima sesión del agente).
+**Pendiente:** implementar los dos ajustes → hecho, ver [ajustes de la Fase 3](2026-11-11-ajustes-fase-3.md).

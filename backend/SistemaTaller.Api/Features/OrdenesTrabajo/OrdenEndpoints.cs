@@ -9,6 +9,7 @@ public record ItemEntrada(Guid ServicioId, Posicion? Posicion, Lado? Lado, decim
 // Sin TallerId ni UsuarioId: salen del token.
 public record OrdenAlta(Guid VehiculoId, string? Notas, List<ItemEntrada>? Servicios);
 public record EstadoCambio(EstadoOrden Estado);
+public record PrecioCambio(decimal? PrecioFinal);
 
 public record OrdenResumen(
     Guid Id, Guid VehiculoId, string Patente, string Tipo, string? Marca, string? Modelo,
@@ -95,6 +96,22 @@ public static class OrdenEndpoints
             if (error is not null) return Results.ValidationProblem(error);
             nuevo!.OrdenTrabajoId = id;
             db.OrdenesTrabajoServicio.Add(nuevo);
+            await db.SaveChangesAsync();
+            return Results.Ok(await Detalle(db, id));
+        });
+
+        // RF-18: el precio se puede cambiar en cualquier momento mientras la orden esté en curso.
+        grupo.MapPatch("/{id:guid}/servicios/{itemId:guid}", async (Guid id, Guid itemId, PrecioCambio cambio, TallerDbContext db) =>
+        {
+            var orden = await db.OrdenesTrabajo.FirstOrDefaultAsync(o => o.Id == id);
+            if (orden is null) return Results.NotFound();
+            var item = await db.OrdenesTrabajoServicio.FirstOrDefaultAsync(s => s.Id == itemId && s.OrdenTrabajoId == id);
+            if (item is null) return Results.NotFound();
+            if (orden.Estado == EstadoOrden.Entregado) return OrdenCerrada();
+            if (cambio.PrecioFinal is not { } precio || precio < 0 || precio > 9_999_999_999m)
+                return Results.ValidationProblem(new Dictionary<string, string[]> { ["precioFinal"] = ["El precio no es válido."] });
+
+            item.PrecioFinal = precio;
             await db.SaveChangesAsync();
             return Results.Ok(await Detalle(db, id));
         });

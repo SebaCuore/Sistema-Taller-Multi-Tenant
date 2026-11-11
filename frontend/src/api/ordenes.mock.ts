@@ -63,6 +63,12 @@ export const ordenesMock: ApiOrdenes = {
     o.servicios = o.servicios.filter((i) => i.id !== itemId)
     return recalcular(o)
   },
+  async cambiarPrecio(id, itemId, precioFinal) {
+    const o = buscar(id)
+    const i = o.servicios.find((x) => x.id === itemId)
+    if (i) i.precioFinal = precioFinal
+    return recalcular(o)
+  },
   async cambiarEstado(id, estado) {
     const o = buscar(id)
     o.estado = estado

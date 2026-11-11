@@ -12,6 +12,8 @@ export const ordenesReal: ApiOrdenes = {
     pedir<OrdenDetalle>(`/api/ordenes/${id}/servicios`, { method: 'POST', body: enJson(item) }),
   quitarServicio: (id, itemId) =>
     pedir<OrdenDetalle>(`/api/ordenes/${id}/servicios/${itemId}`, { method: 'DELETE' }),
+  cambiarPrecio: (id, itemId, precioFinal) =>
+    pedir<OrdenDetalle>(`/api/ordenes/${id}/servicios/${itemId}`, { method: 'PATCH', body: enJson({ precioFinal }) }),
   cambiarEstado: (id, estado) =>
     pedir<OrdenDetalle>(`/api/ordenes/${id}/estado`, { method: 'PATCH', body: enJson({ estado }) }),
   finalizar: (id) => pedir<OrdenDetalle>(`/api/ordenes/${id}/finalizar`, { method: 'POST' }),

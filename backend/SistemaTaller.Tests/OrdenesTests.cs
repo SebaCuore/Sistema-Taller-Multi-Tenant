@@ -125,6 +125,7 @@ public class OrdenesTests(SistemaTallerFactory fabrica)
         Assert.Equal(HttpStatusCode.Unauthorized, (await c.DeleteAsync($"/api/ordenes/{id}/servicios/{id}")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await c.PatchAsJsonAsync($"/api/ordenes/{id}/estado", new { })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsync($"/api/ordenes/{id}/finalizar", null)).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await c.PatchAsJsonAsync($"/api/ordenes/{id}/servicios/{id}", new { precioFinal = 1 })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await c.GetAsync("/api/servicios")).StatusCode);
     }
 
@@ -255,5 +256,57 @@ public class OrdenesTests(SistemaTallerFactory fabrica)
         var releida = await cliente.GetFromJsonAsync<OrdenDetalle>($"/api/ordenes/{orden.Id}", Json);
 
         Assert.Equal(18000m, releida!.Servicios.Single(s => s.Servicio == "Balanceo").PrecioFinal);
+    }
+
+    // ---- cambiar precio de un servicio ya cargado (RF-18) ----
+
+    [Fact]
+    public async Task CambiarElPrecioDeUnServicioYaCargadoRecalculaElTotal()
+    {
+        var (_, cliente, orden) = await TallerConOrden("OA3001");
+
+        var r = await cliente.PatchAsJsonAsync($"/api/ordenes/{orden.Id}/servicios/{orden.Servicios[0].Id}", new { precioFinal = 12500.5m }, Json);
+
+        Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+        var actualizada = await Leer<OrdenDetalle>(r);
+        Assert.Equal(12500.5m, actualizada.Servicios[0].PrecioFinal);
+        Assert.Equal(12500.5m, actualizada.Total);
+    }
+
+    [Fact]
+    public async Task CambiarPrecioEnUnaOrdenEntregadaDa409()
+    {
+        var (_, cliente, orden) = await TallerConOrden("OA3002");
+        await cliente.PostAsync($"/api/ordenes/{orden.Id}/finalizar", null);
+
+        var r = await cliente.PatchAsJsonAsync($"/api/ordenes/{orden.Id}/servicios/{orden.Servicios[0].Id}", new { precioFinal = 1m }, Json);
+
+        Assert.Equal(HttpStatusCode.Conflict, r.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("-5")]
+    [InlineData("null")]
+    public async Task CambiarPrecioInvalidoDa400(string precio)
+    {
+        var (_, cliente, orden) = await TallerConOrden("OA3003");
+        var cuerpo = new StringContent($"{{\"precioFinal\": {precio}}}", System.Text.Encoding.UTF8, "application/json");
+
+        var r = await cliente.PatchAsync($"/api/ordenes/{orden.Id}/servicios/{orden.Servicios[0].Id}", cuerpo);
+
+        Assert.Equal(HttpStatusCode.BadRequest, r.StatusCode);
+    }
+
+    [Fact]
+    public async Task CambiarPrecioDeUnServicioDeOtroTallerDa404YNoLoModifica()
+    {
+        var (_, clienteA, _) = await TallerConOrden("OA3004");
+        var (tallerB, _, ordenB) = await TallerConOrden("OB3004");
+
+        var r = await clienteA.PatchAsJsonAsync($"/api/ordenes/{ordenB.Id}/servicios/{ordenB.Servicios[0].Id}", new { precioFinal = 1m }, Json);
+
+        Assert.Equal(HttpStatusCode.NotFound, r.StatusCode);
+        await using var db = fabrica.CrearContexto(tallerB);
+        Assert.Equal(ordenB.Servicios[0].PrecioFinal, (await db.OrdenesTrabajoServicio.SingleAsync(s => s.Id == ordenB.Servicios[0].Id)).PrecioFinal);
     }
 }
