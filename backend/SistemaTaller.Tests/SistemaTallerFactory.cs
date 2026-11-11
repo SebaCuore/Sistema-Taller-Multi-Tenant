@@ -22,6 +22,7 @@ public class SistemaTallerFactory : WebApplicationFactory<Program>, IAsyncLifeti
 {
     public const string ClaveJwt = "clave-solo-para-tests-0123456789-0123456789";
 
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, Guid> _usuarios = new();
     private PostgreSqlContainer? _contenedor;
     private string? _servidorExterno;
     private string _nombreBase = "";
@@ -70,9 +71,26 @@ public class SistemaTallerFactory : WebApplicationFactory<Program>, IAsyncLifeti
             await db.SaveChangesAsync();
         }
 
+        // Cada taller tiene su propio catálogo: se copia el del taller sembrado por la migración.
+        List<Servicio> modelo;
+        await using (var origen = CrearContexto(TallerConfiguration.IdSanMartin))
+            modelo = await origen.Servicios.AsNoTracking().ToListAsync();
+
         var vehiculoId = Guid.CreateVersion7();
+        var usuarioId = Guid.CreateVersion7();
+        _usuarios[tallerId] = usuarioId;
         await using (var db = CrearContexto(tallerId))
         {
+            foreach (var s in modelo)
+            {
+                s.Id = Guid.CreateVersion7();
+                db.Servicios.Add(s); // TallerId lo completa el contexto
+            }
+            // Usuario real del taller: las órdenes lo referencian (FK) desde el claim sub.
+            db.Usuarios.Add(new Usuario
+            {
+                Id = usuarioId, Nombre = "Empleado", Email = "empleado@test", PasswordHash = "x", FechaAlta = DateTime.UtcNow,
+            });
             db.Vehiculos.Add(new Vehiculo
             {
                 Id = vehiculoId, Patente = patente, TipoVehiculoId = TipoVehiculoConfiguration.IdAuto,
@@ -89,7 +107,7 @@ public class SistemaTallerFactory : WebApplicationFactory<Program>, IAsyncLifeti
         var claves = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ClaveJwt));
         var token = new JwtSecurityToken(
             issuer: "sistema-taller-api", audience: "sistema-taller-frontend",
-            claims: [new Claim("sub", Guid.NewGuid().ToString()), new Claim("taller_id", tallerId.ToString()), new Claim("rol", "Admin")],
+            claims: [new Claim("sub", (_usuarios.TryGetValue(tallerId, out var u) ? u : Guid.NewGuid()).ToString()), new Claim("taller_id", tallerId.ToString()), new Claim("rol", "Admin")],
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: new SigningCredentials(claves, SecurityAlgorithms.HmacSha256));
         var cliente = CreateClient();

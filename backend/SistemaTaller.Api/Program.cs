@@ -5,13 +5,19 @@ using Microsoft.IdentityModel.Tokens;
 using SistemaTaller.Api.Common;
 using SistemaTaller.Api.Data;
 using SistemaTaller.Api.Data.Entidades;
+using System.Text.Json.Serialization;
 using SistemaTaller.Api.Features.Auth;
+using SistemaTaller.Api.Features.OrdenesTrabajo;
+using SistemaTaller.Api.Features.Servicios;
 using SistemaTaller.Api.Features.Vehiculos;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Falta Jwt:Key (dotnet user-secrets o variable de entorno).");
+
+// Enums como texto también en JSON ("EnProceso", no 1).
+builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITallerActual, TallerActual>();
@@ -22,6 +28,7 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false; // conserva los nombres del token: "sub", "taller_id", "rol"
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -60,6 +67,8 @@ app.UseAuthorization();
 
 app.MapAuthEndpoints();
 app.MapVehiculoEndpoints();
+app.MapServicioEndpoints();
+app.MapOrdenEndpoints();
 
 app.Run();
 return 0;
