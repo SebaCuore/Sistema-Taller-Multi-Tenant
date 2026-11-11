@@ -21,4 +21,4 @@
 
 - RF-08: no hay pantalla de edición de vehículo (solo `PUT`); el plan de esta fase no la pedía.
 - Los registros de prueba creados en la base de desarrollo local (patentes `TS…`/`TD…`) quedan ahí.
-- CI de GitHub: anotada abajo al terminar.
+- CI de GitHub en verde para el commit `feat: add new vehicle screen with known-plate confirmation and swappable api layer` (corrida 43038699670).
