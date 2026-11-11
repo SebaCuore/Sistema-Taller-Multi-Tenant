@@ -30,10 +30,10 @@ Alcance: MVP (primer lanzamiento). Ver [`mvp.md`](mvp.md) para el corte explíci
 - **RF-15**: Debe poder crearse una orden de trabajo asociada a un vehículo.
 - **RF-16**: Una orden de trabajo puede incluir uno o varios servicios del catálogo.
 - **RF-17**: Al agregar un servicio a una orden, si el servicio admite posición y/o lado, deben poder especificarse (por ejemplo, "Balanceo — delantero izquierdo").
-- **RF-18**: El precio de cada servicio dentro de una orden se precarga con el precio de referencia (si existe) pero es editable manualmente por el empleado.
+- **RF-18**: El precio de cada servicio dentro de una orden se precarga con el precio de referencia (si existe) pero es editable manualmente por el empleado, tanto al agregarlo como en cualquier momento posterior mientras la orden esté en curso (decisión del dueño, 2026-11-11).
 - **RF-19**: Debe poder agregarse o quitarse un servicio de una orden mientras está en curso.
 - **RF-20**: Registrar los estados intermedios (en proceso, listo para retirar) es opcional — el empleado puede cargar la orden completa recién al finalizar el trabajo.
-- **RF-21**: Al finalizar una orden de trabajo (estado `entregado`), debe quedar registrada en el historial.
+- **RF-21**: Al finalizar una orden de trabajo (estado `entregado`), debe quedar registrada en el historial. Antes de finalizar, el sistema pide confirmación explícita y avisa que la orden pasa al historial y ya no se va a poder modificar (decisión del dueño, 2026-11-11).
 
 ## 5. Historial de trabajos
 

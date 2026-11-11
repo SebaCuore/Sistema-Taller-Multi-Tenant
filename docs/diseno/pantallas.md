@@ -58,7 +58,7 @@ Barra lateral izquierda fija, siempre visible (no hace falta ocultarla, sobra es
 
 - **Propósito**: gestionar una orden ya activa (RF-16 a RF-21) — es la pantalla que se abre al tocar una tarjeta existente en "Taller".
 - **Elementos**: datos del vehículo, estado actual, lista de servicios agregados (cada uno con posición/lado si aplica, y precio — precargado con el precio de referencia pero editable a mano).
-- **Acciones**: agregar servicio (mismo selector de catálogo que en el alta), quitar un servicio agregado, cambiar de estado (opcional — RF-20: se puede saltear directo a "Entregado"), botón grande "Finalizar" que cierra la orden y la manda al historial (RF-21).
+- **Acciones**: agregar servicio (mismo selector de catálogo que en el alta), quitar un servicio agregado, cambiar de estado (opcional — RF-20: se puede saltear directo a "Entregado"), botón grande "Finalizar" que cierra la orden y la manda al historial (RF-21), **siempre con confirmación**: "¿Finalizar la orden de {patente}? La orden pasa al historial y ya no se va a poder modificar." con "Sí, finalizar" / "No, volver". El precio de cada servicio ya cargado se puede editar desde acá en cualquier momento mientras la orden esté en curso (RF-18).
 - **Casos especiales**: confirmación antes de quitar un servicio ya agregado (acción destructiva). Si se finaliza sin haber pasado por estados intermedios, no debe dar error ni pedir explicación — es el caso normal para trabajos rápidos.
 
 ## 4. Historial de Servicios

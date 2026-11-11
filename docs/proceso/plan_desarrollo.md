@@ -119,7 +119,12 @@ El corazón del sistema. Usa el catálogo de servicios ya sembrado en la Fase 1 
 - [x] Test de componente (Vitest + RTL) de la confirmación antes de quitar un servicio.
 - [x] El primer test end-to-end (Playwright, `frontend/e2e/`, `npm run test:e2e`; necesita API y base levantadas, no corre en la CI) del proyecto: login → alta de vehículo → orden con dos servicios → finalizar. Es el mismo flujo del checkpoint de abajo, ya escrito como test permanente.
 
-**Checkpoint:** flujo completo desde el frontend — alta de vehículo → orden con dos servicios → marcar "listo para retirar" → finalizar — y que la orden desaparezca del tablero de "Taller".
+**Ajustes pedidos por el dueño al probar la Fase 3 (2026-11-11)** — hacer antes de la Fase 4:
+- [ ] **Confirmación obligatoria al finalizar** (RF-21): diálogo "¿Finalizar la orden de {patente}?" con el texto "La orden pasa al historial y ya no se va a poder modificar." y los botones "Sí, finalizar" / "No, volver" (mismo estilo que la confirmación de quitar servicio). Test de componente: sin confirmar no se llama a la API; "No, volver" deja la orden como estaba.
+- [ ] **Precio editable en cualquier momento** (RF-18): `PATCH /api/ordenes/{id}/servicios/{itemId}` con `{ precioFinal }` — 404 si la orden es de otro taller, 409 si está entregada, 400 si el precio es negativo. En el detalle de la orden, cada servicio permite cambiar su precio (botón visible "Cambiar precio", no tocar el número) y el total se recalcula. Tests: integración (camino feliz, 409, 400, aislamiento, 401 sin token) y componente.
+- [ ] Actualizar el E2E para que confirme al finalizar y cambie el precio de un servicio ya cargado.
+
+**Checkpoint:** flujo completo desde el frontend — alta de vehículo → orden con dos servicios → cambiar el precio de uno ya cargado → marcar "listo para retirar" → finalizar (confirmando) — y que la orden desaparezca del tablero de "Taller".
 
 ---
 
