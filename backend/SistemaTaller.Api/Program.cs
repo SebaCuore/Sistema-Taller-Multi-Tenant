@@ -7,6 +7,7 @@ using SistemaTaller.Api.Data;
 using SistemaTaller.Api.Data.Entidades;
 using System.Text.Json.Serialization;
 using SistemaTaller.Api.Features.Auth;
+using SistemaTaller.Api.Features.Historial;
 using SistemaTaller.Api.Features.OrdenesTrabajo;
 using SistemaTaller.Api.Features.Servicios;
 using SistemaTaller.Api.Features.Vehiculos;
@@ -69,6 +70,7 @@ app.MapAuthEndpoints();
 app.MapVehiculoEndpoints();
 app.MapServicioEndpoints();
 app.MapOrdenEndpoints();
+app.MapHistorialEndpoints();
 
 app.Run();
 return 0;
