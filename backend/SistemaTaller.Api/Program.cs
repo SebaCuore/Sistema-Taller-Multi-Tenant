@@ -10,6 +10,8 @@ using SistemaTaller.Api.Features.Auth;
 using SistemaTaller.Api.Features.Historial;
 using SistemaTaller.Api.Features.OrdenesTrabajo;
 using SistemaTaller.Api.Features.Servicios;
+using SistemaTaller.Api.Features.Stock;
+using SistemaTaller.Api.Features.Ventas;
 using SistemaTaller.Api.Features.Vehiculos;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,6 +73,8 @@ app.MapVehiculoEndpoints();
 app.MapServicioEndpoints();
 app.MapOrdenEndpoints();
 app.MapHistorialEndpoints();
+app.MapProductoEndpoints();
+app.MapVentaEndpoints();
 
 app.Run();
 return 0;

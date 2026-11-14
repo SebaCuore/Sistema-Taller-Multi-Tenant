@@ -125,6 +125,7 @@ public class ProductoConfiguration : IEntityTypeConfiguration<Producto>
     {
         b.Property(x => x.Nombre).HasMaxLength(150).IsRequired();
         b.Property(x => x.Precio).HasColumnType("numeric(12,2)");
+        b.Property(x => x.Activo).HasDefaultValue(true);
         b.HasOne<Taller>().WithMany().HasForeignKey(x => x.TallerId).OnDelete(DeleteBehavior.Restrict);
     }
 }
@@ -134,6 +135,7 @@ public class VentaConfiguration : IEntityTypeConfiguration<Venta>
     public void Configure(EntityTypeBuilder<Venta> b)
     {
         b.Property(x => x.PrecioUnitario).HasColumnType("numeric(12,2)");
+        b.HasIndex(x => new { x.TallerId, x.Fecha });
         b.HasOne<Taller>().WithMany().HasForeignKey(x => x.TallerId).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<Producto>().WithMany().HasForeignKey(x => x.ProductoId).OnDelete(DeleteBehavior.Restrict);
     }

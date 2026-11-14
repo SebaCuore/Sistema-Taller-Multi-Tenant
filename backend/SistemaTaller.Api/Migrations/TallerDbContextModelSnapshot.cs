@@ -108,6 +108,11 @@ namespace SistemaTaller.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("Activo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -422,7 +427,7 @@ namespace SistemaTaller.Api.Migrations
 
                     b.HasIndex("ProductoId");
 
-                    b.HasIndex("TallerId");
+                    b.HasIndex("TallerId", "Fecha");
 
                     b.ToTable("Ventas");
                 });

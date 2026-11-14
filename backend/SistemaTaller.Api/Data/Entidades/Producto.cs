@@ -9,4 +9,6 @@ public class Producto : IPerteneceATaller
     public string Nombre { get; set; } = "";
     public decimal Precio { get; set; }
     public int StockActual { get; set; }
+    /// <summary>Un producto "eliminado" queda inactivo: las ventas viejas lo siguen referenciando.</summary>
+    public bool Activo { get; set; } = true;
 }
