@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SistemaTaller.Api.Common;
@@ -18,6 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Falta Jwt:Key (dotnet user-secrets o variable de entorno).");
+if (Encoding.UTF8.GetByteCount(jwtKey) < 32)
+    throw new InvalidOperationException("Jwt:Key tiene que tener al menos 32 caracteres.");
 
 // Enums como texto también en JSON ("EnProceso", no 1).
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -49,21 +52,56 @@ builder.Services.AddAuthorization();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+// CORS solo hace falta cuando el frontend se sirve desde otro origen (Vite en desarrollo).
+// En producción la propia API sirve el frontend (wwwroot) y FrontendOrigin puede quedar vacío.
+var origenFrontend = builder.Configuration["FrontendOrigin"];
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
-        policy.WithOrigins(builder.Configuration["FrontendOrigin"]!)
-              .AllowAnyHeader()
-              .AllowAnyMethod()));
+    {
+        if (!string.IsNullOrWhiteSpace(origenFrontend))
+            policy.WithOrigins(origenFrontend).AllowAnyHeader().AllowAnyMethod();
+    }));
+
+// Detrás del proxy del hosting, el esquema real (https) llega en X-Forwarded-Proto.
+builder.Services.Configure<ForwardedHeadersOptions>(o =>
+{
+    o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    o.KnownIPNetworks.Clear();
+    o.KnownProxies.Clear();
+});
 
 var app = builder.Build();
 
-// Modo de comando único: dotnet run -- crear-admin <email> <contraseña>
+// Modos de comando único: dotnet run -- crear-admin <email> <contraseña>  |  dotnet run -- migrar
 if (args.Length > 0 && args[0] == "crear-admin")
 {
     return await CrearAdmin.EjecutarAsync(app, args);
 }
+var soloMigrar = args.Length > 0 && args[0] == "migrar";
+if (soloMigrar || app.Configuration.GetValue<bool>("MigrarAlIniciar"))
+{
+    // Aplica las migraciones pendientes (y el seed). En producción: MigrarAlIniciar=true o el comando "migrar".
+    using var scope = app.Services.CreateScope();
+    var opciones = scope.ServiceProvider.GetRequiredService<DbContextOptions<TallerDbContext>>();
+    await using var db = new TallerDbContext(opciones, new TallerFijo(Guid.Empty));
+    await db.Database.MigrateAsync();
+    if (soloMigrar)
+    {
+        Console.WriteLine("Migraciones aplicadas.");
+        return 0;
+    }
+}
 
+app.UseForwardedHeaders();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+    app.UseHttpsRedirection(); // con el proxy del hosting ya en https no redirige; protege si alguien entra por http
+}
 app.UseExceptionHandler();
+// Frontend compilado (wwwroot), cuando existe: en producción la API y la web salen del mismo origen.
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -75,6 +113,21 @@ app.MapOrdenEndpoints();
 app.MapHistorialEndpoints();
 app.MapProductoEndpoints();
 app.MapVentaEndpoints();
+
+// Rutas del frontend (/historial, /ordenes/…): devuelven index.html. Las de la API que no existen siguen dando 404.
+app.MapFallback(async contexto =>
+{
+    var indice = app.Environment.WebRootFileProvider.GetFileInfo("index.html");
+    var esApi = contexto.Request.Path.StartsWithSegments("/api") || contexto.Request.Path.StartsWithSegments("/auth");
+    if (esApi || !indice.Exists || !HttpMethods.IsGet(contexto.Request.Method))
+    {
+        contexto.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+    contexto.Response.ContentType = "text/html; charset=utf-8";
+    contexto.Response.Headers.CacheControl = "no-cache";
+    await contexto.Response.SendFileAsync(indice);
+});
 
 app.Run();
 return 0;

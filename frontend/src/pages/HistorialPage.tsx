@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { apiHistorial } from '@/api/historial'
 import type { HistorialServicio, ItemOrden } from '@/api/tipos'
 import Layout from '@/components/Layout'
+import PestanasHistorial from '@/components/PestanasHistorial'
 import { Button } from '@/components/ui/button'
 import { CLASE_CAMPO } from '@/lib/estilos'
 import { obtenerToken } from '@/lib/sesion'
@@ -53,6 +54,7 @@ export default function HistorialPage() {
     <Layout>
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 pt-6 pb-28 md:pb-10">
         <h1 className="font-heading text-3xl font-bold">Historial de servicios</h1>
+        <PestanasHistorial />
 
         <form onSubmit={buscar} role="search" className="flex flex-col gap-3 sm:flex-row">
           <label className="flex flex-1 flex-col gap-2 text-lg font-medium">

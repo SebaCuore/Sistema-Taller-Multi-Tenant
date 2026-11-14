@@ -1,6 +1,7 @@
 import { borrarToken, obtenerToken } from '@/lib/sesion'
 
-export const URL_API = import.meta.env.VITE_API_URL ?? 'http://localhost:5108'
+// En desarrollo la API corre aparte (puerto 5108). En producción la misma API sirve el frontend: mismo origen.
+export const URL_API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:5108' : '')
 
 export class ErrorApi extends Error {
   status: number
@@ -24,5 +25,6 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
     window.location.assign('/login')
   }
   if (!respuesta.ok) throw new ErrorApi(respuesta.status, `Error ${respuesta.status}`)
+  if (respuesta.status === 204) return undefined as T // sin contenido (por ejemplo, una baja)
   return (await respuesta.json()) as T
 }

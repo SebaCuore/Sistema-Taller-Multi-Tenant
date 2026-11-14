@@ -136,6 +136,7 @@ Detalle de servicios aplicados a una orden (una orden puede tener varios).
 | nombre | texto | |
 | precio | número | |
 | stock_actual | número | puede quedar en negativo (ver `Venta`) |
+| activo | booleano | "eliminar" un producto lo deja inactivo (baja lógica): sale del stock, pero las ventas viejas lo siguen referenciando |
 
 *Campos adicionales (categoría, proveedor, código, etc.) quedan pendientes — ver [`mvp.md`](../producto/mvp.md).*
 

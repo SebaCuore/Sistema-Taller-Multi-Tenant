@@ -111,7 +111,10 @@ public class CatalogoStockVentasTests(SistemaTallerFactory fabrica)
 
         var r = await cliente.DeleteAsync($"/api/servicios/{uno.Id}");
 
-        Assert.Equal(HttpStatusCode.MethodNotAllowed, r.StatusCode);
+        // No hay ruta DELETE: responde 404/405 según el enrutado, y el servicio sigue existiendo.
+        Assert.Contains(r.StatusCode, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
+        var catalogo = (await cliente.GetFromJsonAsync<List<ServicioRespuesta>>("/api/servicios", Json))!;
+        Assert.Contains(catalogo, s => s.Id == uno.Id);
     }
 
     [Fact]

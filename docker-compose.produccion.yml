@@ -1,0 +1,38 @@
+# Ensayo de producción en una sola máquina: la imagen del Dockerfile + su propio Postgres.
+# NO reemplaza al docker-compose.yml de desarrollo. Pasos y variables: docs/proceso/despliegue.md
+#
+#   JWT_KEY=<clave de 32+ caracteres> POSTGRES_PASSWORD=<contraseña> docker compose -f docker-compose.produccion.yml up -d --build
+#
+# La aplicación queda en http://localhost:8080
+name: sistema-taller-produccion
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Default: Host=db;Database=sistema_taller;Username=postgres;Password=${POSTGRES_PASSWORD:?Definí POSTGRES_PASSWORD}
+      Jwt__Key: ${JWT_KEY:?Definí JWT_KEY (32 caracteres o más)}
+      MigrarAlIniciar: "true"
+    ports:
+      - "8080:8080"
+
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definí POSTGRES_PASSWORD}
+      POSTGRES_DB: sistema_taller
+    volumes:
+      - datos:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sistema_taller"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  datos:

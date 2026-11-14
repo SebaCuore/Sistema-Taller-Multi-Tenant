@@ -4,7 +4,9 @@ Registro de cada sesión de trabajo: qué se hizo, qué se verificó y cómo, qu
 
 ## Esperando decisión
 
-- **Charla con el dueño del taller** sobre `Producto`/`Venta` (categorías, proveedores, códigos). Bloquea la Fase 6.
+- **Fase 7 — despliegue**: elegir plataforma de hosting, crear las cuentas y cargar los secretos de producción. Todo lo demás está listo y probado en local (ver [`despliegue.md`](../proceso/despliegue.md)).
+- **Charla con el dueño del taller** sobre `Producto`/`Venta` (categorías, proveedores, códigos). Ya no bloquea: Stock y Ventas funcionan con nombre, precio y cantidad; lo que salga de la charla se agrega después.
+- **Confirmar con el dueño del taller** los precios de referencia sembrados (son los del prototipo) y qué servicios piden posición/lado. Se corrigen desde Ajustes, sin tocar código.
 
 ## Sesiones
 
@@ -12,6 +14,7 @@ La más nueva arriba.
 
 | Fecha | Fase | Sesión |
 |---|---|---|
+| 2026-11-14 | 5 y 6 cerradas · 7 preparada | [Catálogo, Stock, Ventas y preparación del despliegue](2026-11-14-catalogo-stock-ventas.md) |
 | 2026-11-11 | 4 cerrada | [Historial de servicios, navegación y edición de vehículo](2026-11-11-historial.md) |
 | 2026-11-11 | 3 cerrada de nuevo | [Ajustes del dueño en la Fase 3: confirmar al finalizar y precio editable](2026-11-11-ajustes-fase-3.md) |
 | 2026-11-11 | 3 reabierta | [Decisiones del dueño tras probar la Fase 3](2026-11-11-decisiones-del-dueno-fase-3.md) |

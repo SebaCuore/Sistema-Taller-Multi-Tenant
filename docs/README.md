@@ -44,6 +44,7 @@
 | [`plan_desarrollo.md`](proceso/plan_desarrollo.md) | Fases verticales con checklist y checkpoint — empezar acá para programar |
 | [`testing.md`](proceso/testing.md) | Qué se testea, con qué herramienta y cuándo |
 | [`flujo_de_trabajo.md`](proceso/flujo_de_trabajo.md) | Git, commits y GitHub Actions |
+| [`proceso/despliegue.md`](proceso/despliegue.md) | Cómo se pone en producción: imagen Docker única, variables de entorno, ensayo local, backups |
 
 ## [`bitacora/`](bitacora/README.md) — qué se hizo
 

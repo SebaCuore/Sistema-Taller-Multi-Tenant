@@ -150,15 +150,15 @@ Son consultas de solo lectura sobre lo que ya existe desde la Fase 3 — fase co
 Se puede hacer en cualquier momento después de la Fase 1 (el catálogo ya está sembrado y funcionando) — va acá porque [`pantallas.md`](../diseno/pantallas.md) la marca como de uso poco frecuente, no porque bloquee algo.
 
 **Backend:**
-- [ ] `GET /api/servicios` (listado del taller).
-- [ ] `PATCH /api/servicios/{id}` (activar/desactivar — RF-10, nunca `DELETE`).
-- [ ] `POST /api/servicios` (agregar servicio propio — RF-11 a RF-13).
+- [x] `GET /api/servicios` (listado del taller).
+- [x] `PATCH /api/servicios/{id}` (activar/desactivar — RF-10, nunca `DELETE`). También corrige el precio de referencia (`precioReferencia` / `sinPrecio`).
+- [x] `POST /api/servicios` (agregar servicio propio — RF-11 a RF-13).
 
 **Frontend:**
-- [ ] Pantalla 8 (Catálogo de servicios, dentro de Ajustes).
+- [x] Pantalla 8 (Catálogo de servicios, dentro de Ajustes).
 
 **Testing:**
-- [ ] Test de integración: un servicio desactivado no aparece en el selector de servicios de una orden nueva, pero una orden vieja que ya lo tenía lo sigue mostrando.
+- [x] Test de integración: un servicio desactivado no aparece en el selector de servicios de una orden nueva, pero una orden vieja que ya lo tenía lo sigue mostrando.
 
 **Checkpoint:** desactivar un servicio del catálogo y confirmar que ya no aparece como opción al dar de alta una orden nueva (Fase 3), pero sigue visible en órdenes viejas que ya lo usaban.
 
@@ -166,22 +166,22 @@ Se puede hacer en cualquier momento después de la Fase 1 (el catálogo ya está
 
 ## Fase 6 — Stock y Ventas (RF-24 a RF-29)
 
-**Prerrequisito bloqueante, no técnico:** el detalle fino de `Producto`/`Venta` (categorías, proveedores, códigos) sigue pendiente de la charla con el dueño del taller ([`mvp.md`](../producto/mvp.md)). No conviene escribir el backend de esto hasta cerrar esa charla — el esqueleto mínimo ya definido en [`base_de_datos.md`](../tecnica/base_de_datos.md) alcanza para lo funcional, pero conviene confirmar que no falta nada antes de dar por cerrada la fase.
+**Decisión del dueño (2026-11-14):** terminar el proyecto con la solución más sencilla. La fase se hizo con el esqueleto mínimo de [`base_de_datos.md`](../tecnica/base_de_datos.md) (nombre, precio, cantidad); categorías, proveedores y códigos quedan para después de la charla con el dueño del taller y se agregan con una migración. Texto original del bloqueo: **Prerrequisito bloqueante, no técnico:** el detalle fino de `Producto`/`Venta` (categorías, proveedores, códigos) sigue pendiente de la charla con el dueño del taller ([`mvp.md`](../producto/mvp.md)). No conviene escribir el backend de esto hasta cerrar esa charla — el esqueleto mínimo ya definido en [`base_de_datos.md`](../tecnica/base_de_datos.md) alcanza para lo funcional, pero conviene confirmar que no falta nada antes de dar por cerrada la fase.
 
 **Backend:**
-- [ ] `GET/POST/PUT/DELETE /api/productos` (RF-24, RF-25).
-- [ ] `POST /api/ventas` con descuento de stock vía `ExecuteUpdateAsync` (RF-26 a RF-29), incluyendo el flag `sinStockSuficiente` en vez de bloquear la venta (RF-28).
-- [ ] `GET /api/historial/ventas`.
+- [x] `GET/POST/PUT/DELETE /api/productos` (RF-24, RF-25). El `DELETE` es una baja lógica (`Producto.Activo = false`): el producto sale del stock pero las ventas viejas lo siguen mostrando.
+- [x] `POST /api/ventas` con descuento de stock vía `ExecuteUpdateAsync` (RF-26 a RF-29), incluyendo el flag `sinStockSuficiente` en vez de bloquear la venta (RF-28).
+- [x] `GET /api/historial/ventas`.
 
 **Frontend:**
-- [ ] Pantalla 7 (Stock).
-- [ ] Pantalla 5 (Ventas), con el aviso suave de stock en 0.
-- [ ] Pantalla 6 (Historial → Ventas).
+- [x] Pantalla 7 (Stock).
+- [x] Pantalla 5 (Ventas), con el aviso suave de stock en 0.
+- [x] Pantalla 6 (Historial → Ventas).
 
 **Testing:**
-- [ ] Batería de aislamiento para `Producto` y `Venta`.
-- [ ] Unit test puro de la regla de stock negativo (RF-28): dado cantidad y stock actual, ¿arma bien el flag `sinStockSuficiente`? (sin base de datos — ver [`testing.md`](testing.md)).
-- [ ] Test de integración del descuento atómico de stock con `ExecuteUpdateAsync`.
+- [x] Batería de aislamiento para `Producto` y `Venta`.
+- [x] Unit test puro de la regla de stock negativo (RF-28): dado cantidad y stock actual, ¿arma bien el flag `sinStockSuficiente`? (sin base de datos — ver [`testing.md`](testing.md)).
+- [x] Test de integración del descuento atómico de stock con `ExecuteUpdateAsync`.
 
 **Checkpoint:** cargar un producto, venderlo hasta dejarlo en stock negativo, y confirmar que la venta se registra igual con el aviso, no con un error.
 
@@ -191,7 +191,8 @@ Se puede hacer en cualquier momento después de la Fase 1 (el catálogo ya está
 
 Ya no es "una feature" — es la puesta a punto antes de que el dueño real lo use con datos reales.
 
-- [ ] Toda la suite de tests (`dotnet test`, `npm test`, el/los E2E de Playwright) en verde en `main`, no solo en la rama de la última fase.
+- [x] Toda la suite de tests (`dotnet test`, `npm test`, el/los E2E de Playwright) en verde en `main`, no solo en la rama de la última fase.
+- [x] **Preparado sin elegir plataforma** (2026-11-14): imagen Docker única que sirve API + frontend, migraciones al iniciar, HSTS/redirección detrás del proxy, y un ensayo de producción local con los E2E pasando — ver [`despliegue.md`](despliegue.md).
 - [ ] Elegir la plataforma de hosting (candidatas en [`arquitectura.md`](../tecnica/arquitectura.md): Render, Railway, Fly.io, Azure App Service) y desplegar backend + base de datos.
 - [ ] Variables de entorno de producción (cadena de conexión, clave JWT) — nunca las de desarrollo reusadas.
 - [ ] HTTPS confirmado de punta a punta (frontend y backend).
