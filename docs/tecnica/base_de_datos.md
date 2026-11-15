@@ -45,7 +45,7 @@ Quien inicia sesión en el sistema (dueño/empleado del taller). Sin sistema de 
 | id | identificador | PK |
 | taller_id | referencia → Taller | |
 | nombre | texto | |
-| email o usuario | texto | único por taller |
+| email o usuario | texto | único en todo el sistema |
 | password_hash | texto | nunca texto plano |
 | rol | texto/enum | MVP: solo `admin`. Extensible a futuro (`empleado`, etc.) sin cambiar el esquema. |
 | activo | booleano | |

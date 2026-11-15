@@ -48,6 +48,15 @@ Los tests E2E se pueden apuntar a ese ensayo: `E2E_BASE_URL=http://localhost:808
 
 Sirve también como instalación real en una PC o servidor propio del taller, pero ahí el HTTPS y los backups quedan a cargo de quien lo instala.
 
+## Operación del piloto (Fase 6.5)
+
+- **Contraseña olvidada**: no hay recuperación por email. El responsable del sistema la restablece desde la consola de la plataforma:
+  `dotnet SistemaTaller.Api.dll cambiar-password <email> "<nueva de 8+ caracteres>"`
+  (en local: `dotnet run -- cambiar-password <email> "<nueva>"` desde `backend/SistemaTaller.Api/`). Con la sesión de 30 días, las sesiones ya abiertas no se cierran al cambiar la contraseña; para cerrarlas todas hay que cambiar `Jwt__Key`.
+- **Salud**: `GET /salud` responde `200` si la API y la base están bien, `503` si la base no responde. No pide token y no devuelve datos. Apuntarle un monitor externo gratuito (UptimeRobot o similar, intervalo de 5 minutos, aviso al celular del responsable) con la URL `https://<dominio>/salud`.
+- **Límite de intentos**: `POST /auth/login` acepta 10 intentos por minuto por IP y responde `429` después. Cambiables con `Login__IntentosPorVentana` y `Login__VentanaSegundos` (por defecto 10 y 60). Depende de que la plataforma mande `X-Forwarded-For`; si todos los pedidos llegaran con la IP del proxy, el límite sería compartido por todos los usuarios.
+- **Logs**: todo sale por la salida estándar. Cada login fallido registra el email y la IP (nunca la contraseña) como `Login fallido para …`, y cada `429` como `Login limitado (429) …`. Los errores no manejados los registra `GlobalExceptionHandler`. Saber dónde se leen y cuántos días se guardan en la plataforma elegida.
+
 ## Backups
 
 - **En una plataforma**: usar el backup automático diario de su Postgres administrado y probar una restauración antes de cargar datos reales.

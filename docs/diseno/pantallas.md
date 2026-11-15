@@ -95,6 +95,9 @@ Barra lateral izquierda fija, siempre visible (no hace falta ocultarla, sobra es
 
 - **Propósito**: configurar los servicios del taller (RF-09 a RF-13). Pantalla de uso poco frecuente, por eso vive en Ajustes y no en la navegación principal.
 - **Elementos**: listado de servicios (por defecto + propios) con interruptor de activo/inactivo, y botón para agregar un servicio propio (nombre, categoría auto/moto, si aplica posición, si aplica lado, precio de referencia opcional).
+- **Editar servicio (RF-32)**: cada servicio tiene un botón "Editar servicio" junto a "Cambiar precio" y "Desactivar". Abre el mismo formulario del alta (nombre, Auto/Moto/Ambos, pide posición, pide lado) con los datos actuales, sin el precio. Un nombre repetido da un aviso en el propio formulario.
+- **Cambiar contraseña (RF-30)**: en la sección "Sesión" de Ajustes, botón "Cambiar contraseña" que despliega un formulario de un paso (contraseña actual, nueva y repetir nueva). Al guardar muestra "Contraseña cambiada" con un botón "Listo"; los errores (actual incorrecta, nueva corta, no coinciden) salen como texto sobre el botón.
+- **Login**: tras 10 intentos en un minuto muestra "Demasiados intentos. Esperá un minuto y probá de nuevo."
 - **Mobile y escritorio**: misma estructura, lista simple — no justifica un layout distinto por lo poco frecuente de su uso.
 
 ## Resumen de accesos

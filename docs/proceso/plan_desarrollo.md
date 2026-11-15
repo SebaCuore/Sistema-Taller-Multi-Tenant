@@ -187,6 +187,55 @@ Se puede hacer en cualquier momento después de la Fase 1 (el catálogo ya está
 
 ---
 
+## Fase 6.5 — Puesta a punto para el piloto
+
+Agregada el 2026-11-15, después de revisar el proyecto con vistas a probarlo con un primer taller. Son los huecos que hay que cerrar **antes de cargar datos reales**: ninguno es una función nueva del taller, todos son seguridad y operación. Va antes de la Fase 7 porque no depende de elegir hosting y porque la Fase 7 termina con datos reales adentro. Lo que hace falta para ofrecerlo a más talleres está al final del documento, en "Después del piloto".
+
+**Decisiones tomadas por defecto** (las más sencillas; si el dueño prefiere otra cosa, se cambia antes de empezar el ítem):
+
+- La sesión dura **30 días** en vez de 8 horas. Sin refresh tokens: solo se alarga el vencimiento del JWT. Costo aceptado: un token robado vale hasta que vence, y cambiar la contraseña no cierra las sesiones abiertas (cambiar `Jwt__Key` sí las cierra todas).
+- El email pasa a ser **único en todo el sistema**, no solo dentro de un taller. Es lo que el login ya asume.
+- En el piloto el taller usa **un solo usuario compartido**. Alta de empleados y roles quedan para después.
+
+**Backend:**
+
+- [x] **Límite de intentos en `POST /auth/login`.** Hoy acepta intentos ilimitados. Usar el rate limiter que trae ASP.NET Core (`AddRateLimiter`, sin paquetes nuevos): ventana fija por IP, 10 intentos por minuto, respuesta `429`. `UseRateLimiter` va después de `UseForwardedHeaders`, para que la IP sea la del cliente y no la del proxy del hosting. El resto de los endpoints no se limita.
+- [x] **Cambio de contraseña con sesión iniciada**: `POST /auth/cambiar-password` (`RequireAuthorization`), recibe la contraseña actual y la nueva (8 caracteres o más). Contraseña actual incorrecta → `400` con mensaje claro, no `401` (el frontend trata el `401` como sesión vencida y manda al login).
+- [x] **Recuperación cuando se olvidó la contraseña**: comando `dotnet SistemaTaller.Api.dll cambiar-password <email> "<nueva>"`, hermano de `crear-admin`. Lo corre el dueño del proyecto desde la consola del hosting; no hay recuperación por email en el piloto.
+- [x] **Email único global.** El índice hoy es `(TallerId, Email)`, pero el login busca por email con `IgnoreQueryFilters()` y toma el primero: con dos talleres y un mismo email entra al taller equivocado. Migración que reemplaza el índice por uno único sobre `Email`; `crear-admin` valida contra todos los talleres. Actualizar [`backend.md`](../tecnica/backend.md) y [`base_de_datos.md`](../tecnica/base_de_datos.md), que hoy dicen "único dentro de un taller".
+- [x] **Sesión de 30 días**: `expires` en `AuthEndpoints` y la mención de las 8 horas en [`backend.md`](../tecnica/backend.md).
+- [x] **Endpoint de salud** `GET /salud`, sin autenticación: `200` si la API responde y la base acepta conexiones (`Database.CanConnectAsync`), `503` si no. No devuelve datos ni versión. Tiene que quedar fuera del fallback que sirve `index.html`.
+- [x] **Logs útiles para diagnosticar**: registrar cada login fallido (email e IP, nunca la contraseña) y cada `429`. Los errores no manejados ya se registran en `GlobalExceptionHandler`. Todo a la salida estándar, que es lo que guarda el hosting.
+- [x] **Corregir un servicio del catálogo.** `PATCH /api/servicios/{id}` hoy solo cambia activo y precio; nombre, categoría y si pide posición/lado no se pueden corregir. Ampliar el `PATCH` y la pantalla de Ajustes para editarlos. Los 7 servicios sembrados salen del prototipo y hay que poder ajustarlos al taller real sin tocar la base.
+
+**Frontend:**
+
+- [x] **Ajustes → "Cambiar contraseña"**: contraseña actual, nueva y repetir nueva; confirmación de que se guardó. Mismas reglas de accesibilidad que el resto (pantalla completa en mobile, modal en escritorio).
+- [x] **Mensaje para el `429` en el login**: "Demasiados intentos. Esperá un minuto y probá de nuevo." Hoy mostraría un error genérico.
+- [x] **Ajustes → editar servicio** (nombre, Auto/Moto/Ambos, pide posición, pide lado), junto al "Cambiar precio" que ya existe.
+- [ ] Confirmar a mano que con la sesión de 30 días el celular no vuelve a pedir login al cerrar y reabrir el navegador.
+
+**Testing:**
+
+- [x] Login: el intento número 11 en un minuto da `429`, y un login correcto después de la ventana vuelve a funcionar.
+- [x] Cambio de contraseña: con la actual correcta, la vieja deja de servir y la nueva entra; con la actual incorrecta, `400` y nada cambia; sin token, `401`; nueva de menos de 8 caracteres, `400`. Un usuario no puede cambiar la contraseña de otro taller (sale del token, no del body).
+- [x] Email único: `crear-admin` con un email que ya existe en otro taller falla; la migración aplica sobre una base desde cero.
+- [x] `/salud`: `200` sin token.
+- [x] Edición de servicio: aislamiento por `taller_id` (404 sobre un servicio de otro taller) y nombre duplicado → `400`.
+- [x] Test de frontend del formulario de cambio de contraseña y del mensaje de `429`.
+- [x] Sumar al E2E: cambiar la contraseña, cerrar sesión y volver a entrar con la nueva.
+- [x] Repetir el ensayo de producción de [`despliegue.md`](despliegue.md) con todo lo anterior y los E2E pasando contra `http://localhost:8080`.
+
+**Documentación:**
+
+- [x] [`despliegue.md`](despliegue.md): el comando `cambiar-password`, el endpoint `/salud` y cómo apuntarle un monitor.
+- [x] [`requerimientos_funcionales.md`](../producto/requerimientos_funcionales.md): sumar como RF el cambio de contraseña y la edición de servicios.
+- [x] [`pantallas.md`](../diseno/pantallas.md): los dos formularios nuevos de Ajustes.
+
+**Checkpoint:** en el ensayo de producción local, cambiar la contraseña desde Ajustes, cerrar sesión y entrar con la nueva; fallar el login 11 veces seguidas y ver el aviso de "demasiados intentos"; `GET /salud` responde `200`.
+
+---
+
 ## Fase 7 — Endurecer y mostrarlo en serio
 
 Ya no es "una feature" — es la puesta a punto antes de que el dueño real lo use con datos reales.
@@ -200,4 +249,31 @@ Ya no es "una feature" — es la puesta a punto antes de que el dueño real lo u
 - [ ] Probar el sistema completo en el celular, en el taller si es posible, con el dueño mirando — no solo en el escritorio de desarrollo.
 - [ ] Revisar junto con el dueño si algo de lo que quedó "fuera del MVP" ([`mvp.md`](../producto/mvp.md)) pasó a ser urgente después de ver el sistema funcionando de verdad.
 
+**Agregado el 2026-11-15 — condiciones para arrancar el piloto con el primer taller.** Todas dependen del dueño del proyecto; ninguna es código.
+
+- [ ] Fase 6.5 desplegada (el código está hecho y probado en el ensayo local; falta el despliegue real). No cargar datos reales antes.
+- [ ] **Restauración probada**: bajar un backup del hosting y restaurarlo en una base nueva. Un backup que nunca se restauró no cuenta.
+- [ ] **Monitor externo** gratuito (UptimeRobot o similar) apuntando a `/salud`, con aviso al celular del dueño del proyecto.
+- [ ] **Saber dónde se leen los logs** en la plataforma elegida y cuántos días los guarda.
+- [ ] **Base de producción limpia**: creada desde cero, sin los "Servicio E2E …" ni productos de prueba de la base de desarrollo. Los E2E no se corren contra producción.
+- [ ] **Datos del taller real** cargados con el dueño del taller: nombre del taller (hoy sembrado como "San Martín"; si es otro, cambiarlo), servicios con sus precios de referencia y posición/lado desde Ajustes, y stock inicial si va a usar Ventas.
+- [ ] **Usuario real** creado con `crear-admin`, con el email del taller y una contraseña que el dueño del taller cambie él mismo desde Ajustes.
+- [ ] **Acuerdo de piloto por escrito** (un mensaje alcanza): que es una prueba, cuánto dura (4 a 6 semanas), que es gratis o con descuento, que sus datos son suyos y se los entregás si deja de usarlo, y que guarda nombres y teléfonos de sus clientes (Ley 25.326 de datos personales: usarlos solo para el taller).
+- [ ] **Plan si algo falla**: el taller sigue con su cuaderno o método actual en paralelo la primera semana, y sabe a quién escribirle.
+- [ ] **Canal de feedback y seguimiento**: un chat con el dueño del taller y una charla semanal fija. Anotar qué usa todos los días, dónde se traba y qué pide.
+- [ ] **Criterio de éxito definido antes de empezar**: por ejemplo, que al final del piloto siga cargando órdenes todos los días sin que se lo recuerden, y que diga cuánto pagaría.
+
 **Checkpoint:** el dueño del taller carga un vehículo real, con datos reales, desde su propio celular.
+---
+
+## Después del piloto — antes de ofrecerlo a más talleres
+
+No es una fase todavía: es la lista de lo que se sabe que falta, para ordenarla con lo que salga del piloto. No construir nada de esto antes de terminarlo.
+
+- **Alta de talleres**: hoy no hay forma de crear un segundo taller (`crear-admin` asigna siempre al primero). Falta el alta con su catálogo inicial de servicios.
+- **Usuarios y roles**: alta de empleados desde la aplicación y, si hace falta, un rol distinto de `Admin`.
+- **Recuperación de contraseña por email**, y cierre de sesiones al cambiar la contraseña.
+- **Lo comercial**: planes, cobro, términos de uso y política de datos personales.
+- **Límites conocidos**: los historiales devuelven como máximo 200 registros (sin paginación); no hay exportación de datos ni reportes (caja del día, totales por período).
+- **Lo que está fuera del MVP** ([`mvp.md`](../producto/mvp.md)): facturación electrónica, avisos al cliente, presupuestos, detalle de Stock. El piloto dice cuáles importan.
+- **CI**: construir la imagen Docker y correr los E2E en la CI antes de tener más de un cliente dependiendo de `main`.

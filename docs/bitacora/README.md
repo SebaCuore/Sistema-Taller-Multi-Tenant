@@ -14,6 +14,7 @@ La más nueva arriba.
 
 | Fecha | Fase | Sesión |
 |---|---|---|
+| 2026-11-15 | 6.5 hecha en código | [Puesta a punto para el piloto: login seguro, contraseña, salud y edición de servicios](2026-11-15-puesta-a-punto-piloto.md) |
 | 2026-11-14 | 5 y 6 cerradas · 7 preparada | [Catálogo, Stock, Ventas y preparación del despliegue](2026-11-14-catalogo-stock-ventas.md) |
 | 2026-11-11 | 4 cerrada | [Historial de servicios, navegación y edición de vehículo](2026-11-11-historial.md) |
 | 2026-11-11 | 3 cerrada de nuevo | [Ajustes del dueño en la Fase 3: confirmar al finalizar y precio editable](2026-11-11-ajustes-fase-3.md) |

@@ -116,7 +116,7 @@ Regla simple para no dudar dónde va un archivo nuevo: si es de dominio/base de 
 - **Estados y categorías**: `enum` de C# mapeado a texto con `.HasConversion<string>()`, para que en la base quede legible (`'en_proceso'`, no un número).
 - **Campos `activo`**: `Servicio` y `TipoVehiculo` nunca se borran — no exponer `DELETE`, solo `PATCH` que cambia `Activo`.
 - **`DeleteBehavior`**: `Restrict` por defecto en todo lo que cuelga de `Taller`, `Vehiculo`, `Servicio`, `Producto`. Única excepción real: `OrdenTrabajo → OrdenTrabajoServicio` puede ser `Cascade`, aunque en la práctica una orden nunca se borra (es historial).
-- **Índices** a crear a mano: `Vehiculo` con índice compuesto `(TallerId, Patente)` (RF-06, la consulta más frecuente del sistema); `Usuario` con índice único compuesto `(TallerId, Email)` (el email es único *dentro de un taller*, no global).
+- **Índices** a crear a mano: `Vehiculo` con índice compuesto `(TallerId, Patente)` (RF-06, la consulta más frecuente del sistema); `Usuario` con índice único sobre `Email` (el email es único *en todo el sistema*, no por taller: el login busca por email sin conocer el taller).
 
 ## Entidades completas
 
@@ -560,7 +560,7 @@ public static class AuthEndpoints
                     new Claim("taller_id", usuario.TallerId.ToString()),
                     new Claim("rol", usuario.Rol.ToString()),
                 ],
-                expires: DateTime.UtcNow.AddHours(8),
+                expires: DateTime.UtcNow.AddDays(30), // sesión de 30 días (Fase 6.5)
                 signingCredentials: credenciales);
 
             return Results.Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });

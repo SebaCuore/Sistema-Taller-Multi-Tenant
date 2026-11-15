@@ -109,6 +109,8 @@ Playwright ya está listo para usarse sin instalación adicional. E2E rinde cuan
 
 **Cómo correrlo hoy** (`frontend/e2e/flujo-taller.spec.ts`): con Postgres (`docker compose up -d`), la API (`dotnet run`) y un admin creado con `crear-admin` (credenciales en `E2E_EMAIL` / `E2E_PASSWORD`, por defecto `admin@ejemplo.com` / `clave-de-prueba-1`), desde `frontend/`: `npm run test:e2e`. Playwright levanta Vite solo. Con `PLAYWRIGHT_CHROMIUM_PATH` se usa un Chromium ya instalado. **No corre en la CI** (le faltaría una API con base de datos); sumarlo a la CI es una mejora pendiente.
 
+**Desde la Fase 6.5** hay un spec más (`e2e/seguridad.spec.ts`: cambiar la contraseña y volver a entrar, y el aviso de "demasiados intentos"). El límite de login es por IP y el último test lo agota a propósito, así que hay que correr **siempre con `--workers=1`** (`npx playwright test --workers=1`) y **no repetir la corrida antes de que pase un minuto**: el primer login de la siguiente daría `429`. El E2E del flujo del taller espera el precio de referencia sembrado de Balanceo (18.000): si en la base de desarrollo se lo cambió desde Ajustes, falla; en una base limpia (el ensayo de producción) pasa.
+
 ## Herramientas — resumen
 
 | Capa | Herramienta | Cuándo se escribe |

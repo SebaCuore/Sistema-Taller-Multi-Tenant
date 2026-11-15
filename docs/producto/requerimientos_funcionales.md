@@ -8,6 +8,8 @@ Alcance: MVP (primer lanzamiento). Ver [`mvp.md`](mvp.md) para el corte explíci
 - **RF-02**: Las contraseñas deben almacenarse hasheadas, nunca en texto plano.
 - **RF-03**: Sin sistema de roles granular en el MVP — todo usuario autenticado tiene el mismo nivel de acceso (rol `admin` por defecto).
 - **RF-04**: Toda acción dentro del sistema debe operar únicamente sobre los datos del `taller_id` del usuario autenticado.
+- **RF-30**: El usuario autenticado puede cambiar su propia contraseña desde Ajustes, indicando la actual y la nueva (8 caracteres o más). Si olvidó la contraseña, la recupera el responsable del sistema con el comando `cambiar-password` ([`despliegue.md`](../proceso/despliegue.md)); no hay recuperación por email en el piloto.
+- **RF-31**: El login limita los intentos por IP (10 por minuto) y la sesión dura 30 días. El email es único en todo el sistema.
 
 ## 2. Vehículos
 
@@ -23,6 +25,7 @@ Alcance: MVP (primer lanzamiento). Ver [`mvp.md`](mvp.md) para el corte explíci
 - **RF-11**: Debe poder agregarse un servicio propio, no incluido en la lista por defecto.
 - **RF-12**: Cada servicio puede tener un precio de referencia, opcional.
 - **RF-13**: Cada servicio indica si admite posición (delantero/trasero) y/o lado (izquierda/derecha) — el lado solo aplica en la práctica a servicios de auto.
+- **RF-32**: Debe poder corregirse un servicio existente (nombre, Auto/Moto/Ambos, si pide posición y si pide lado), también los sembrados por defecto. El cambio vale para todas las órdenes, incluidas las viejas que ya lo usaron (decisión del dueño, 2026-11-15).
 
 ## 4. Órdenes de trabajo (sección "Taller")
 

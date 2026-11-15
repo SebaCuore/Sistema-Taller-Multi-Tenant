@@ -4,7 +4,7 @@ Cómo se trabaja en el proyecto. Volver al [índice general](../README.md). El p
 
 | Documento | Contenido | Cuándo leerlo |
 |---|---|---|
-| [`plan_desarrollo.md`](plan_desarrollo.md) | Fases 0 a 7, cada una vertical (base de datos → API → pantalla), con checklist y checkpoint | **Empezar acá para escribir código** |
+| [`plan_desarrollo.md`](plan_desarrollo.md) | Fases 0 a 7, cada una vertical (base de datos → API → pantalla), con checklist y checkpoint; incluye la Fase 6.5 (puesta a punto para el piloto) y lo que falta después del piloto | **Empezar acá para escribir código** |
 | [`testing.md`](testing.md) | Qué se testea, con qué herramienta y cuándo; la batería de aislamiento por `taller_id` es prioridad máxima | Al cerrar cada ítem de una fase |
 | [`flujo_de_trabajo.md`](flujo_de_trabajo.md) | Git, convención de commits, GitHub Actions (CI) | Al commitear o tocar la CI |
 | [`despliegue.md`](despliegue.md) | Imagen Docker única (API + frontend), variables de entorno, pasos en la plataforma, ensayo local, backups y qué falta decidir | Al preparar o hacer el despliegue (Fase 7) |
