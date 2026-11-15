@@ -27,6 +27,10 @@ const mock: ApiCatalogo = {
     const s = enMemoria.find((x) => x.id === id)
     if (!s) throw new Error('No existe')
     if (cambio.activo !== undefined) s.activo = cambio.activo
+    if (cambio.nombre !== undefined) s.nombre = cambio.nombre
+    if (cambio.categoriaVehiculo !== undefined) s.categoriaVehiculo = cambio.categoriaVehiculo
+    if (cambio.aplicaPosicion !== undefined) s.aplicaPosicion = cambio.aplicaPosicion
+    if (cambio.aplicaLado !== undefined) s.aplicaLado = cambio.aplicaLado
     if (cambio.sinPrecio) s.precioReferencia = null
     else if (cambio.precioReferencia !== undefined) s.precioReferencia = cambio.precioReferencia
     return { ...s }

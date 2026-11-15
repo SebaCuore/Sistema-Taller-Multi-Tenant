@@ -43,7 +43,8 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         b.Property(x => x.Email).HasMaxLength(200).IsRequired();
         b.Property(x => x.PasswordHash).HasMaxLength(100).IsRequired();
         b.Property(x => x.Rol).HasConversion<string>().HasMaxLength(30);
-        b.HasIndex(x => new { x.TallerId, x.Email }).IsUnique();
+        // Único en todo el sistema (no por taller): el login busca por email sin conocer el taller.
+        b.HasIndex(x => x.Email).IsUnique();
         b.HasOne<Taller>().WithMany().HasForeignKey(x => x.TallerId).OnDelete(DeleteBehavior.Restrict);
     }
 }

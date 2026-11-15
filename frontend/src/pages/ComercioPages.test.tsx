@@ -18,6 +18,8 @@ const stock = vi.hoisted(() => ({
 const catalogo = vi.hoisted(() => ({ listar: vi.fn(), agregar: vi.fn(), cambiar: vi.fn() }))
 vi.mock('@/api/stock', () => ({ apiStock: stock }))
 vi.mock('@/api/catalogo', () => ({ apiCatalogo: catalogo }))
+const auth = vi.hoisted(() => ({ cambiarPassword: vi.fn() }))
+vi.mock('@/api/auth', () => auth)
 
 import AjustesPage from './AjustesPage'
 import StockPage from './StockPage'
@@ -158,5 +160,70 @@ describe('AjustesPage — catálogo de servicios', () => {
     await u.click(screen.getByRole('button', { name: 'Guardar precio' }))
 
     await vi.waitFor(() => expect(catalogo.cambiar).toHaveBeenCalledWith('s1', { sinPrecio: true }))
+  })
+
+  it('corrige nombre, tipo y posición/lado de un servicio sin tocar el precio', async () => {
+    catalogo.cambiar.mockResolvedValue({ ...balanceo, nombre: 'Balanceo de ruedas' })
+    const u = montar(<AjustesPage />)
+    await u.click(await screen.findByRole('button', { name: 'Editar Balanceo' }))
+    const nombre = screen.getByLabelText('Nombre')
+    await u.clear(nombre)
+    await u.type(nombre, 'Balanceo de ruedas')
+    await u.click(screen.getByRole('radio', { name: 'Auto' }))
+    await u.click(screen.getByRole('checkbox', { name: /Pide lado/ }))
+    await u.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+
+    await vi.waitFor(() =>
+      expect(catalogo.cambiar).toHaveBeenCalledWith('s1', {
+        nombre: 'Balanceo de ruedas', categoriaVehiculo: 'Auto', aplicaPosicion: true, aplicaLado: false,
+      }),
+    )
+  })
+})
+
+describe('AjustesPage — cambiar contraseña', () => {
+  async function abrir() {
+    const u = montar(<AjustesPage />)
+    await u.click(await screen.findByRole('button', { name: 'Cambiar contraseña' }))
+    return u
+  }
+
+  it('manda la actual y la nueva, y confirma que se guardó', async () => {
+    auth.cambiarPassword.mockResolvedValue(undefined)
+    const u = await abrir()
+    await u.type(screen.getByLabelText('Contraseña actual'), 'vieja-1234')
+    await u.type(screen.getByLabelText(/Contraseña nueva/), 'nueva-5678')
+    await u.type(screen.getByLabelText('Repetir contraseña nueva'), 'nueva-5678')
+    await u.click(screen.getByRole('button', { name: 'Guardar contraseña' }))
+
+    expect((await screen.findByRole('status')).textContent).toMatch(/Contraseña cambiada/)
+    expect(auth.cambiarPassword).toHaveBeenCalledWith('vieja-1234', 'nueva-5678')
+  })
+
+  it('no envía si la repetición no coincide o la nueva es corta', async () => {
+    const u = await abrir()
+    await u.type(screen.getByLabelText('Contraseña actual'), 'vieja-1234')
+    await u.type(screen.getByLabelText(/Contraseña nueva/), 'corta')
+    await u.type(screen.getByLabelText('Repetir contraseña nueva'), 'corta')
+    await u.click(screen.getByRole('button', { name: 'Guardar contraseña' }))
+    expect((await screen.findByRole('alert')).textContent).toMatch(/al menos 8/)
+
+    await u.clear(screen.getByLabelText(/Contraseña nueva/))
+    await u.type(screen.getByLabelText(/Contraseña nueva/), 'nueva-5678')
+    await u.click(screen.getByRole('button', { name: 'Guardar contraseña' }))
+    expect((await screen.findByRole('alert')).textContent).toMatch(/no coinciden/)
+    expect(auth.cambiarPassword).not.toHaveBeenCalled()
+  })
+
+  it('muestra el mensaje del servidor si la contraseña actual es incorrecta', async () => {
+    const { ErrorApi } = await import('@/api/cliente')
+    auth.cambiarPassword.mockRejectedValue(new ErrorApi(400, 'Error 400', { passwordActual: ['La contraseña actual no es correcta.'] }))
+    const u = await abrir()
+    await u.type(screen.getByLabelText('Contraseña actual'), 'equivocada')
+    await u.type(screen.getByLabelText(/Contraseña nueva/), 'nueva-5678')
+    await u.type(screen.getByLabelText('Repetir contraseña nueva'), 'nueva-5678')
+    await u.click(screen.getByRole('button', { name: 'Guardar contraseña' }))
+
+    expect((await screen.findByRole('alert')).textContent).toBe('La contraseña actual no es correcta.')
   })
 })

@@ -34,6 +34,13 @@ describe('LoginPage', () => {
     expect(localStorage.getItem('sistema-taller.token')).toBeNull()
   })
 
+  it('avisa con un mensaje claro cuando hay demasiados intentos (429)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 429 })))
+    montar()
+    await completarYEnviar()
+    expect((await screen.findByRole('alert')).textContent).toBe('Demasiados intentos. Esperá un minuto y probá de nuevo.')
+  })
+
   it('guarda el token y manda Authorization en pedidos posteriores', async () => {
     const fetchSimulado = vi
       .fn()

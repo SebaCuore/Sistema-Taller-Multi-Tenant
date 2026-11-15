@@ -55,6 +55,12 @@ public class SistemaTallerFactory : WebApplicationFactory<Program>, IAsyncLifeti
         await db.Database.MigrateAsync();
     }
 
+    protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
+    {
+        // Los tests comparten IP: sin esto el límite de login (10/min) los frenaría. El test del 429 lo baja.
+        builder.UseSetting("Login:IntentosPorVentana", "100000");
+    }
+
     public TallerDbContext CrearContexto(Guid tallerId)
     {
         var opciones = new DbContextOptionsBuilder<TallerDbContext>().UseNpgsql(_cadena).Options;
@@ -89,7 +95,7 @@ public class SistemaTallerFactory : WebApplicationFactory<Program>, IAsyncLifeti
             // Usuario real del taller: las órdenes lo referencian (FK) desde el claim sub.
             db.Usuarios.Add(new Usuario
             {
-                Id = usuarioId, Nombre = "Empleado", Email = "empleado@test", PasswordHash = "x", FechaAlta = DateTime.UtcNow,
+                Id = usuarioId, Nombre = "Empleado", Email = $"empleado-{tallerId:N}@test", PasswordHash = "x", FechaAlta = DateTime.UtcNow,
             });
             db.Vehiculos.Add(new Vehiculo
             {

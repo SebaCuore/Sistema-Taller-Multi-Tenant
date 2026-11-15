@@ -33,6 +33,54 @@ public class CatalogoStockVentasTests(SistemaTallerFactory fabrica)
     // ================= Fase 5: catálogo =================
 
     [Fact]
+    public async Task ServicioSeCorrigeEnNombreTipoYPosicionLado()
+    {
+        var (_, _, cliente) = await Taller("CA6501");
+        var cat = (await cliente.GetFromJsonAsync<List<ServicioRespuesta>>("/api/servicios", Json))!;
+        var rotacion = cat.Single(s => s.Nombre == "Rotación");
+
+        var r = await cliente.PatchAsJsonAsync($"/api/servicios/{rotacion.Id}",
+            new { nombre = "  Rotación de ruedas ", categoriaVehiculo = "Ambos", aplicaPosicion = true, aplicaLado = true }, Json);
+
+        Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+        var editado = await Leer<ServicioRespuesta>(r);
+        Assert.Equal("Rotación de ruedas", editado.Nombre);
+        Assert.Equal("Ambos", editado.CategoriaVehiculo);
+        Assert.True(editado.AplicaPosicion);
+        Assert.True(editado.AplicaLado);
+    }
+
+    [Fact]
+    public async Task EditarServicioConNombreDuplicadoOVacioDa400()
+    {
+        var (_, _, cliente) = await Taller("CA6502");
+        var cat = (await cliente.GetFromJsonAsync<List<ServicioRespuesta>>("/api/servicios", Json))!;
+        var rotacion = cat.Single(s => s.Nombre == "Rotación");
+
+        var duplicado = await cliente.PatchAsJsonAsync($"/api/servicios/{rotacion.Id}", new { nombre = "balanceo" }, Json);
+        var vacio = await cliente.PatchAsJsonAsync($"/api/servicios/{rotacion.Id}", new { nombre = "  " }, Json);
+        var mismoNombre = await cliente.PatchAsJsonAsync($"/api/servicios/{rotacion.Id}", new { nombre = "ROTACIÓN" }, Json);
+
+        Assert.Equal(HttpStatusCode.BadRequest, duplicado.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, vacio.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, mismoNombre.StatusCode);
+    }
+
+    [Fact]
+    public async Task EditarServicioDeOtroTallerDa404YNoLoCambia()
+    {
+        var (_, _, clienteA) = await Taller("CA6503");
+        var (_, _, clienteB) = await Taller("CA6504");
+        var servicioB = (await clienteB.GetFromJsonAsync<List<ServicioRespuesta>>("/api/servicios", Json))!.First();
+
+        var r = await clienteA.PatchAsJsonAsync($"/api/servicios/{servicioB.Id}", new { nombre = "Hackeado" }, Json);
+
+        Assert.Equal(HttpStatusCode.NotFound, r.StatusCode);
+        var despues = (await clienteB.GetFromJsonAsync<List<ServicioRespuesta>>("/api/servicios", Json))!.Single(s => s.Id == servicioB.Id);
+        Assert.Equal(servicioB.Nombre, despues.Nombre);
+    }
+
+    [Fact]
     public async Task ServicioDesactivadoNoApareceEnElSelectorPeroSigueVisibleEnOrdenesViejas()
     {
         var (_, vehiculo, cliente) = await Taller("CA5001");

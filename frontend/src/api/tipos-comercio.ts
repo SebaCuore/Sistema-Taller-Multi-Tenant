@@ -15,6 +15,10 @@ export interface ServicioCambio {
   activo?: boolean
   precioReferencia?: number
   sinPrecio?: boolean
+  nombre?: string
+  categoriaVehiculo?: Servicio['categoriaVehiculo']
+  aplicaPosicion?: boolean
+  aplicaLado?: boolean
 }
 
 export interface ApiCatalogo {

@@ -348,8 +348,10 @@ namespace SistemaTaller.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TallerId", "Email")
+                    b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("TallerId");
 
                     b.ToTable("Usuarios");
                 });

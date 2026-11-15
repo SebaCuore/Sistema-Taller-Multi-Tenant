@@ -5,9 +5,12 @@ export const URL_API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'h
 
 export class ErrorApi extends Error {
   status: number
-  constructor(status: number, mensaje: string) {
+  /** Errores por campo de un 400 de validación (ProblemDetails), por ejemplo { passwordActual: ['…'] }. */
+  errores: Record<string, string[]>
+  constructor(status: number, mensaje: string, errores: Record<string, string[]> = {}) {
     super(mensaje)
     this.status = status
+    this.errores = errores
   }
 }
 
@@ -24,7 +27,10 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
     borrarToken()
     window.location.assign('/login')
   }
-  if (!respuesta.ok) throw new ErrorApi(respuesta.status, `Error ${respuesta.status}`)
+  if (!respuesta.ok) {
+    const cuerpo = (await respuesta.json().catch(() => null)) as { errors?: Record<string, string[]> } | null
+    throw new ErrorApi(respuesta.status, `Error ${respuesta.status}`, cuerpo?.errors ?? {})
+  }
   if (respuesta.status === 204) return undefined as T // sin contenido (por ejemplo, una baja)
   return (await respuesta.json()) as T
 }

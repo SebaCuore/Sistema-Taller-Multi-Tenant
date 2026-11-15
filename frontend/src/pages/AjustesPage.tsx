@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { cambiarPassword } from '@/api/auth'
 import { apiCatalogo } from '@/api/catalogo'
+import { ErrorApi } from '@/api/cliente'
 import type { Servicio } from '@/api/tipos'
 import Layout from '@/components/Layout'
 import { Button } from '@/components/ui/button'
@@ -29,6 +31,8 @@ export default function AjustesPage() {
   const cliente = useQueryClient()
   const [agregando, setAgregando] = useState(false)
   const [editando, setEditando] = useState<{ id: string; precio: string } | null>(null)
+  const [corrigiendo, setCorrigiendo] = useState<string | null>(null)
+  const [cambiandoPassword, setCambiandoPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const catalogo = useQuery({ queryKey: ['catalogo'], queryFn: apiCatalogo.listar })
@@ -95,7 +99,16 @@ export default function AjustesPage() {
                 <p className="text-lg">{detalle(s)}</p>
                 <p className="text-lg">Precio de referencia: <b>{s.precioReferencia != null ? pesos(s.precioReferencia) : 'A definir'}</b></p>
 
-                {editando?.id === s.id ? (
+                {corrigiendo === s.id ? (
+                  <FormularioServicio
+                    inicial={s}
+                    onCancelar={() => setCorrigiendo(null)}
+                    onGuardado={() => {
+                      setCorrigiendo(null)
+                      refrescar()
+                    }}
+                  />
+                ) : editando?.id === s.id ? (
                   <div className="flex flex-col gap-3">
                     <label className={ETIQUETA}>
                       Precio de referencia de {s.nombre} ($)
@@ -115,7 +128,18 @@ export default function AjustesPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <Button
+                      variant="outline"
+                      className="h-14 w-full text-lg"
+                      aria-label={`Editar ${s.nombre}`}
+                      onClick={() => {
+                        setError(null)
+                        setCorrigiendo(s.id)
+                      }}
+                    >
+                      Editar servicio
+                    </Button>
                     <Button
                       variant="outline"
                       className="h-14 w-full text-lg"
@@ -145,6 +169,13 @@ export default function AjustesPage() {
 
         <section aria-labelledby="titulo-sesion" className="flex flex-col gap-3">
           <h2 id="titulo-sesion" className="font-heading text-2xl font-bold">Sesión</h2>
+          {cambiandoPassword ? (
+            <FormularioPassword onCerrar={() => setCambiandoPassword(false)} />
+          ) : (
+            <Button variant="outline" className="h-14 w-full text-lg" onClick={() => setCambiandoPassword(true)}>
+              Cambiar contraseña
+            </Button>
+          )}
           <Button
             variant="outline"
             className="h-14 w-full text-lg"
@@ -162,21 +193,26 @@ export default function AjustesPage() {
   )
 }
 
-function FormularioServicio({ onCancelar, onGuardado }: { onCancelar: () => void; onGuardado: () => void }) {
-  const [nombre, setNombre] = useState('')
-  const [categoria, setCategoria] = useState<Servicio['categoriaVehiculo']>('Ambos')
-  const [aplicaPosicion, setAplicaPosicion] = useState(false)
-  const [aplicaLado, setAplicaLado] = useState(false)
+function FormularioServicio({ inicial, onCancelar, onGuardado }: { inicial?: Servicio; onCancelar: () => void; onGuardado: () => void }) {
+  const [nombre, setNombre] = useState(inicial?.nombre ?? '')
+  const [categoria, setCategoria] = useState<Servicio['categoriaVehiculo']>(inicial?.categoriaVehiculo ?? 'Ambos')
+  const [aplicaPosicion, setAplicaPosicion] = useState(inicial?.aplicaPosicion ?? false)
+  const [aplicaLado, setAplicaLado] = useState(inicial?.aplicaLado ?? false)
   const [precio, setPrecio] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const agregar = useMutation({ mutationFn: apiCatalogo.agregar })
+  const agregar = useMutation({
+    mutationFn: (alta: Parameters<typeof apiCatalogo.agregar>[0]) =>
+      inicial
+        ? apiCatalogo.cambiar(inicial.id, { nombre: alta.nombre, categoriaVehiculo: alta.categoriaVehiculo, aplicaPosicion: alta.aplicaPosicion, aplicaLado: alta.aplicaLado })
+        : apiCatalogo.agregar(alta),
+  })
 
   async function enviar(e: FormEvent) {
     e.preventDefault()
     setError(null)
     if (!nombre.trim()) return setError('Escribí el nombre del servicio.')
-    const monto = leerMonto(precio)
-    if (precio.trim() !== '' && monto === null) return setError('Escribí un precio válido: solo números.')
+    const monto = inicial ? null : leerMonto(precio)
+    if (!inicial && precio.trim() !== '' && monto === null) return setError('Escribí un precio válido: solo números.')
     try {
       await agregar.mutateAsync({
         nombre: nombre.trim(),
@@ -187,13 +223,13 @@ function FormularioServicio({ onCancelar, onGuardado }: { onCancelar: () => void
       })
       onGuardado()
     } catch {
-      setError('No se pudo agregar. Fijate que no exista ya un servicio con ese nombre.')
+      setError(`No se pudo ${inicial ? 'guardar' : 'agregar'}. Fijate que no exista ya un servicio con ese nombre.`)
     }
   }
 
   return (
     <form onSubmit={enviar} noValidate className="flex flex-col gap-4 rounded-lg border-2 border-primary p-4">
-      <h3 className="font-heading text-xl font-bold">Nuevo servicio</h3>
+      <h3 className="font-heading text-xl font-bold">{inicial ? `Editar ${inicial.nombre}` : 'Nuevo servicio'}</h3>
       <label className={ETIQUETA}>
         Nombre
         <input value={nombre} onChange={(e) => setNombre(e.target.value)} className={CLASE_CAMPO} />
@@ -217,15 +253,74 @@ function FormularioServicio({ onCancelar, onGuardado }: { onCancelar: () => void
         <input type="checkbox" checked={aplicaLado} onChange={(e) => setAplicaLado(e.target.checked)} className="size-6 accent-primary" />
         Pide lado (izquierda / derecha)
       </label>
-      <label className={ETIQUETA}>
-        Precio de referencia ($), opcional
-        <input value={precio} onChange={(e) => setPrecio(e.target.value)} inputMode="decimal" placeholder="A definir" className={CLASE_CAMPO} />
-      </label>
+      {!inicial && (
+        <label className={ETIQUETA}>
+          Precio de referencia ($), opcional
+          <input value={precio} onChange={(e) => setPrecio(e.target.value)} inputMode="decimal" placeholder="A definir" className={CLASE_CAMPO} />
+        </label>
+      )}
       {error && <p role="alert" className="text-lg font-medium text-destructive">{error}</p>}
       <Button type="submit" disabled={agregar.isPending} className="h-14 w-full text-lg">
-        {agregar.isPending ? 'Guardando…' : 'Guardar servicio'}
+        {agregar.isPending ? 'Guardando…' : inicial ? 'Guardar cambios' : 'Guardar servicio'}
       </Button>
       <Button type="button" variant="outline" className="h-14 w-full text-lg" onClick={onCancelar}>
+        Cancelar
+      </Button>
+    </form>
+  )
+}
+
+function FormularioPassword({ onCerrar }: { onCerrar: () => void }) {
+  const [actual, setActual] = useState('')
+  const [nueva, setNueva] = useState('')
+  const [repetida, setRepetida] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [guardada, setGuardada] = useState(false)
+  const guardar = useMutation({ mutationFn: () => cambiarPassword(actual, nueva) })
+
+  async function enviar(e: FormEvent) {
+    e.preventDefault()
+    setError(null)
+    if (!actual) return setError('Escribí tu contraseña actual.')
+    if (nueva.length < 8) return setError('La contraseña nueva tiene que tener al menos 8 caracteres.')
+    if (nueva !== repetida) return setError('Las contraseñas nuevas no coinciden.')
+    try {
+      await guardar.mutateAsync()
+      setGuardada(true)
+    } catch (err) {
+      const mensajes = err instanceof ErrorApi && err.status === 400 ? Object.values(err.errores).flat() : []
+      setError(mensajes[0] ?? 'No se pudo cambiar la contraseña. Probá de nuevo.')
+    }
+  }
+
+  if (guardada)
+    return (
+      <div className="flex flex-col gap-3 rounded-lg border-2 border-listo p-4">
+        <p role="status" className="text-lg font-bold">Contraseña cambiada. Desde ahora entrás con la nueva.</p>
+        <Button variant="outline" className="h-14 w-full text-lg" onClick={onCerrar}>Listo</Button>
+      </div>
+    )
+
+  return (
+    <form onSubmit={enviar} noValidate className="flex flex-col gap-4 rounded-lg border-2 border-primary p-4">
+      <h3 className="font-heading text-xl font-bold">Cambiar contraseña</h3>
+      <label className={ETIQUETA}>
+        Contraseña actual
+        <input type="password" autoComplete="current-password" value={actual} onChange={(e) => setActual(e.target.value)} className={CLASE_CAMPO} />
+      </label>
+      <label className={ETIQUETA}>
+        Contraseña nueva (mínimo 8 caracteres)
+        <input type="password" autoComplete="new-password" value={nueva} onChange={(e) => setNueva(e.target.value)} className={CLASE_CAMPO} />
+      </label>
+      <label className={ETIQUETA}>
+        Repetir contraseña nueva
+        <input type="password" autoComplete="new-password" value={repetida} onChange={(e) => setRepetida(e.target.value)} className={CLASE_CAMPO} />
+      </label>
+      {error && <p role="alert" className="text-lg font-medium text-destructive">{error}</p>}
+      <Button type="submit" disabled={guardar.isPending} className="h-14 w-full text-lg">
+        {guardar.isPending ? 'Guardando…' : 'Guardar contraseña'}
+      </Button>
+      <Button type="button" variant="outline" className="h-14 w-full text-lg" onClick={onCerrar}>
         Cancelar
       </Button>
     </form>

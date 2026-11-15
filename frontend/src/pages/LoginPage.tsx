@@ -28,7 +28,9 @@ export default function LoginPage() {
       setError(
         err instanceof ErrorApi && err.status === 401
           ? 'Usuario o contraseña incorrectos'
-          : 'No se pudo conectar. Probá de nuevo en un momento.',
+          : err instanceof ErrorApi && err.status === 429
+            ? 'Demasiados intentos. Esperá un minuto y probá de nuevo.'
+            : 'No se pudo conectar. Probá de nuevo en un momento.',
       )
     } finally {
       setEnviando(false)
